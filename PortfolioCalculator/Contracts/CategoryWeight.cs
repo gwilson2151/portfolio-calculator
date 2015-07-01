@@ -2,11 +2,11 @@
 
 namespace Contracts
 {
-	public class Position : IDomainEntity
+	public class CategoryWeight : IDomainEntity
 	{
 		public int Id { get; set; }
-		public Account Account { get; set; }
+		public CategoryValue Value { get; set; }
+		public decimal Weight { get; set; }
 		public Security Security { get; set; }
-		public int Count { get; set; }
 	}
 }

@@ -1,10 +1,12 @@
 ﻿using System;
+using Contracts.Interfaces;
 
 namespace Contracts
 {
-	public class Transaction
+	public class Transaction : IDomainEntity
 	{
 		public int Id { get; set; }
+		public Account Account { get; set; }
 		public DateTime Date { get; set; }
 		public Security Security { get; set; }
 		public decimal Price { get; set; }

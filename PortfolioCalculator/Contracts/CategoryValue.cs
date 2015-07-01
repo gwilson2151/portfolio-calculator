@@ -2,9 +2,10 @@
 
 namespace Contracts
 {
-	public class Security : IDomainEntity
+	public class CategoryValue : IDomainEntity
 	{
 		public int Id { get; set; }
+		public Category Category { get; set; }
 		public string Name { get; set; }
 	}
 }

@@ -40,6 +40,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Account.cs" />
+    <Compile Include="Category.cs" />
+    <Compile Include="CategoryValue.cs" />
+    <Compile Include="CategoryWeight.cs" />
+    <Compile Include="Interfaces\IDomainEntity.cs" />
     <Compile Include="Portfolio.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
