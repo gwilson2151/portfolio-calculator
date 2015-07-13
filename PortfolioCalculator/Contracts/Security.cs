@@ -5,6 +5,6 @@ namespace Contracts
 	public class Security : IDomainEntity
 	{
 		public int Id { get; set; }
-		public string Name { get; set; }
+		public string Symbol { get; set; }
 	}
 }

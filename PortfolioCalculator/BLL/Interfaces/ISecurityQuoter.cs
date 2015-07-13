@@ -1,9 +1,11 @@
-﻿using Contracts;
+﻿using System.Collections.Generic;
+
+using Contracts;
 
 namespace BLL.Interfaces
 {
 	public interface ISecurityQuoter
 	{
-		decimal GetQuote(Security security);
+		IDictionary<string, decimal> GetQuotes(IEnumerable<Security> security);
 	}
 }

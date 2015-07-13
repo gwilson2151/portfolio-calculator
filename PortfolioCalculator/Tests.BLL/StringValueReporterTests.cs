@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 
-using BLL;
-
 using Moq;
 using NUnit.Framework;
 
+using BLL;
 using BLL.Interfaces;
 using Contracts;
 
@@ -26,9 +25,12 @@ namespace Tests.BLL
 		{
 			// setup
 			var portfolio = GenerateDefaultPortfolio();
-			_quoterMock.Setup(m => m.GetQuote(It.Is<Security>(s => s.Name == "goog"))).Returns(new decimal(18.25));
-			_quoterMock.Setup(m => m.GetQuote(It.Is<Security>(s => s.Name == "msft"))).Returns(new decimal(15));
-			_quoterMock.Setup(m => m.GetQuote(It.Is<Security>(s => s.Name == "aapl"))).Returns(new decimal(9.36));
+			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<string, decimal>
+			{
+				{"goog", new decimal(18.25)},
+				{"msft", new decimal(15)},
+				{"aapl", new decimal(9.36)},
+			});
 
 			// execute
 			StringValueReporter reporter = new StringValueReporter(_quoterMock.Object);
@@ -37,13 +39,22 @@ namespace Tests.BLL
 			// validate
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result, Is.Not.Empty);
+
+			var expected = @"po' boy total = 5197.00
+mandingo total = 3697.00
+goog: 100 x 18.25 = 1825.00
+aapl: 200 x 9.36 = 1872.00
+took total = 1500
+msft: 100 x 15 = 1500
+";
+			Assert.That(result, Is.EqualTo(expected));
 		}
 
 		private static Portfolio GenerateDefaultPortfolio()
 		{
-			Security goog = new Security {Name = "goog"};
-			Security msft = new Security {Name = "msft"};
-			Security aapl = new Security {Name = "aapl"};
+			Security goog = new Security {Symbol = "goog"};
+			Security msft = new Security {Symbol = "msft"};
+			Security aapl = new Security {Symbol = "aapl"};
 
 			Portfolio portfolio = new Portfolio
 			{

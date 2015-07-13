@@ -21,7 +21,8 @@ namespace BLL
 		public string GetReport(Portfolio portfolio)
 		{
 			var reportBuilder = new StringBuilder();
-			var values = CalculateValues(portfolio);
+			var quotes = GetQuotes(portfolio);
+			var values = CalculateValues(portfolio, quotes);
 
 			reportBuilder.AppendLine(string.Format("{0} total = {1}", portfolio.Name, values.Values.Sum()));
 			foreach (var account in portfolio.Accounts)
@@ -29,14 +30,24 @@ namespace BLL
 				reportBuilder.AppendLine(string.Format("{0} total = {1}", account.Name, account.Positions.Select(p => values[p]).Sum()));
 				foreach (var position in account.Positions)
 				{
-					reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Name, position.Count, _quoter.GetQuote(position.Security), values[position]));
+					reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Count, quotes[position.Security.Symbol], values[position]));
 				}
 			}
 
 			return reportBuilder.ToString();
 		}
 
-		private IDictionary<IDomainEntity, decimal> CalculateValues(Portfolio portfolio)
+		private IDictionary<string, decimal> GetQuotes(Portfolio portfolio)
+		{
+			var securities = new List<Security>();
+			foreach (var account in portfolio.Accounts)
+			{
+				securities.AddRange(account.Positions.Select(p => p.Security));
+			}
+			return _quoter.GetQuotes(securities.Distinct());
+		}
+
+		private static IDictionary<IDomainEntity, decimal> CalculateValues(Portfolio portfolio, IDictionary<string, decimal> quotes)
 		{
 			var results = new Dictionary<IDomainEntity, decimal>();
 
@@ -44,7 +55,7 @@ namespace BLL
 			{
 				foreach (var position in account.Positions)
 				{
-					var price = _quoter.GetQuote(position.Security);
+					var price = quotes[position.Security.Symbol];
 					var value = price * position.Count;
 					results.Add(position, value);
 				}
