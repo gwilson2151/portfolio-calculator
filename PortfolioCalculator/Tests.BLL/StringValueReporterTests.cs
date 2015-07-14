@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Moq;
 using NUnit.Framework;
@@ -21,7 +22,7 @@ namespace Tests.BLL
 		}
 
 		[Test]
-		public void Test()
+		public void When_StringValueReporter_Given_Valid_Portfolio_Then_Report_Is_Written_To_String()
 		{
 			// setup
 			var portfolio = GenerateDefaultPortfolio();
@@ -48,6 +49,12 @@ took total = 1500
 msft: 100 x 15 = 1500
 ";
 			Assert.That(result, Is.EqualTo(expected));
+		}
+
+		[Test, Ignore]
+		public void When_SecurityQuoter_Throws_Exception_Then_Report_Generation_Error_Message_Is_Written_To_String()
+		{
+			throw new NotImplementedException();
 		}
 
 		private static Portfolio GenerateDefaultPortfolio()

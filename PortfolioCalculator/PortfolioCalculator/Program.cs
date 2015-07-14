@@ -18,8 +18,9 @@ namespace PortfolioCalculator
 		{
 			Console.WriteLine("Blargh!!!");
 
-			ISecurityQuoter quoter = new YahooStockService(new QuoteServiceFactory());
-			var result = quoter.GetQuotes(new [] {new Security {Symbol = "GOOG"}, new Security { Symbol = "XCS.TO"} });
+			var quoter = new YahooStockService(new QuoteServiceFactory());
+			//var result = quoter.GetQuotes(new [] {new Security {Symbol = "GOOG"}, new Security { Symbol = "XCS.TO"} });
+			var report = new StringValueReporter(quoter);
 
 			Console.ReadKey(true);
 		}
