@@ -41,7 +41,7 @@ namespace Tests.BLL
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result, Is.Not.Empty);
 
-			var expected = @"po' boy total = 5197.00
+			const string expected = @"po' boy total = 5197.00
 mandingo total = 3697.00
 goog: 100 x 18.25 = 1825.00
 aapl: 200 x 9.36 = 1872.00
@@ -52,7 +52,7 @@ msft: 100 x 15 = 1500
 		}
 
 		[Test, Ignore]
-		public void When_SecurityQuoter_Throws_Exception_Then_Report_Generation_Error_Message_Is_Written_To_String()
+		public void When_SecurityQuoter_Cannot_Find_Quote_Then_Report_Generation_Error_Message_Is_Written_To_String()
 		{
 			throw new NotImplementedException();
 		}

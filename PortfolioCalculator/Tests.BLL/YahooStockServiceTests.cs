@@ -53,10 +53,29 @@ namespace Tests.BLL
 			Assert.That(verify.Value, Is.EqualTo(657.73M));
 		}
 
-		[Ignore, Test]
-		public void When_YSQ_Can_Not_Find_Quote_Then_Service_Throws_Exception()
+		[Test]
+		public void When_YSQ_Can_Not_Find_Quote_Then_Service_Discards_Quote()
 		{
-			throw new NotImplementedException();
+			// setup
+			dynamic googQuote = new ExpandoObject();
+			googQuote.Symbol = "\"GOOG\"";
+			googQuote.LatestTradePrice = "657.73";
+			dynamic bjtQuote = new ExpandoObject();
+			bjtQuote.Symbol = "\"BJT\"";
+			bjtQuote.LatestTradePrice = "N/A";
+
+			_ysqMock.Setup(m => m.Quote(It.IsAny<string[]>())).Returns(_ysqfMock.Object);
+			_ysqfMock.Setup(m => m.Return(It.IsAny<QuoteReturnParameter[]>())).Returns(new[] { googQuote, bjtQuote });
+
+			// execute
+			var service = new YahooStockService(_qsfMock.Object);
+			var quotes = service.GetQuotes(new[] { new Security { Symbol = "GOOG" }, new Security { Symbol = "BJT"} });
+
+			// verify
+			Assert.That(quotes.Count, Is.EqualTo(1));
+			var verify = quotes.Single();
+			Assert.That(verify.Key, Is.EqualTo("GOOG"));
+			Assert.That(verify.Value, Is.EqualTo(657.73M));
 		}
 	}
 }

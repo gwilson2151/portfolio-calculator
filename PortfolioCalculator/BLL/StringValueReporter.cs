@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -22,15 +23,19 @@ namespace BLL
 		{
 			var reportBuilder = new StringBuilder();
 			var quotes = GetQuotes(portfolio);
-			var values = CalculateValues(portfolio, quotes);
+			var valuesDict = CalculateValues(portfolio, quotes);
 
-			reportBuilder.AppendLine(string.Format("{0} total = {1}", portfolio.Name, values.Values.Sum()));
+			reportBuilder.AppendLine(string.Format("{0} total = {1}", portfolio.Name, valuesDict.Values.Where(v => v > 0M).Sum()));
 			foreach (var account in portfolio.Accounts)
 			{
-				reportBuilder.AppendLine(string.Format("{0} total = {1}", account.Name, account.Positions.Select(p => values[p]).Sum()));
+				reportBuilder.AppendLine(string.Format("{0} total = {1}", account.Name, account.Positions.Select(p => valuesDict[p]).Where(v => v > 0M).Sum()));
 				foreach (var position in account.Positions)
 				{
-					reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Count, quotes[position.Security.Symbol], values[position]));
+					var value = valuesDict[position];
+					if (value < 0M)
+						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Count, "symbol not found", "unknown"));
+					else
+						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Count, quotes[position.Security.Symbol], value));
 				}
 			}
 
@@ -55,9 +60,16 @@ namespace BLL
 			{
 				foreach (var position in account.Positions)
 				{
-					var price = quotes[position.Security.Symbol];
-					var value = price * position.Count;
-					results.Add(position, value);
+					try
+					{
+						var price = quotes[position.Security.Symbol];
+						var value = price * position.Count;
+						results.Add(position, value);
+					}
+					catch (KeyNotFoundException)
+					{
+						results.Add(position, -1M);
+					}
 				}
 			}
 

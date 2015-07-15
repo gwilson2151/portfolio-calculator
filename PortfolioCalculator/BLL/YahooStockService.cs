@@ -24,7 +24,7 @@ namespace BLL
 		{
 			var symbols = securities.Select(s => s.Symbol).Distinct().ToArray();
 			var quotes = _quoteBuilder.Quote(symbols).Return(QuoteReturnParameter.Symbol, QuoteReturnParameter.LatestTradePrice);
-			return quotes.ToDictionary<dynamic, string, decimal>(key => RemoveYahooSymbolFormat(key.Symbol), value => decimal.Parse(value.LatestTradePrice, CultureInfo.InvariantCulture));
+			return quotes.Where(q => !q.LatestTradePrice.Equals("N/A")).ToDictionary<dynamic, string, decimal>(key => RemoveYahooSymbolFormat(key.Symbol), value => decimal.Parse(value.LatestTradePrice, CultureInfo.InvariantCulture));
 		}
 
 		private static string RemoveYahooSymbolFormat(string rawSymbol)
