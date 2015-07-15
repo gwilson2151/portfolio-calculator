@@ -37,7 +37,7 @@ namespace Tests.BLL
 			// setup
 			dynamic quote = new ExpandoObject();
 			quote.Symbol = "\"GOOG\"";
-			quote.Bid = "657.73";
+			quote.LatestTradePrice = "657.73";
 
 			_ysqMock.Setup(m => m.Quote(It.IsAny<string[]>())).Returns(_ysqfMock.Object);
 			_ysqfMock.Setup(m => m.Return(It.IsAny<QuoteReturnParameter[]>())).Returns(new [] {quote});

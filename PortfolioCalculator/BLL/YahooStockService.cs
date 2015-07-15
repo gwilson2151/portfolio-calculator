@@ -20,10 +20,11 @@ namespace BLL
 			_quoteBuilder = quoteServiceFactory.GetYahooStockQuotesService();
 		}
 
-		public IDictionary<string, decimal> GetQuotes(IEnumerable<Security> security)
+		public IDictionary<string, decimal> GetQuotes(IEnumerable<Security> securities)
 		{
-			var quotes = _quoteBuilder.Quote(security.Select(s => s.Symbol).ToArray()).Return(QuoteReturnParameter.Symbol, QuoteReturnParameter.Bid);
-			return quotes.ToDictionary<dynamic, string, decimal>(key => RemoveYahooSymbolFormat(key.Symbol), value => decimal.Parse(value.Bid, CultureInfo.InvariantCulture));
+			var symbols = securities.Select(s => s.Symbol).Distinct().ToArray();
+			var quotes = _quoteBuilder.Quote(symbols).Return(QuoteReturnParameter.Symbol, QuoteReturnParameter.LatestTradePrice);
+			return quotes.ToDictionary<dynamic, string, decimal>(key => RemoveYahooSymbolFormat(key.Symbol), value => decimal.Parse(value.LatestTradePrice, CultureInfo.InvariantCulture));
 		}
 
 		private static string RemoveYahooSymbolFormat(string rawSymbol)
