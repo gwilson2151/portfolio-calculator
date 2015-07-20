@@ -7,6 +7,6 @@ namespace Contracts
     {
 		public int Id { get; set; }
 		public string Name { get; set; }
-		public List<Account> Accounts { get; set; }
+		public IList<Account> Accounts { get; set; }
     }
 }

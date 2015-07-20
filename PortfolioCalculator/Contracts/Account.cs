@@ -8,7 +8,7 @@ namespace Contracts
 		public int Id { get; set; }
 		public string Name { get; set; }
 		public Portfolio Portfolio { get; set; }
-		public List<Transaction> Transactions { get; set; }
-		public List<Position> Positions { get; set; }
+		public IList<Transaction> Transactions { get; set; }
+		public IList<Position> Positions { get; set; }
 	}
 }

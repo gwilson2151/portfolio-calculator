@@ -33,7 +33,7 @@ namespace BLL
 				{
 					var value = valuesDict[position];
 					if (value < 0M)
-						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Count, "symbol not found", "unknown"));
+						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Count, "quote not found", "unknown"));
 					else
 						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Count, quotes[position.Security.Symbol], value));
 				}

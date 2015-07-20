@@ -1,4 +1,6 @@
-﻿using Contracts.Interfaces;
+﻿using System.Collections.Generic;
+
+using Contracts.Interfaces;
 
 namespace Contracts
 {
@@ -6,5 +8,6 @@ namespace Contracts
 	{
 		public int Id { get; set; }
 		public string Name { get; set; }
+		public IList<CategoryValue> Values { get; set; }
 	}
 }

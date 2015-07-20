@@ -19,21 +19,31 @@ namespace PortfolioCalculator
 	{
 		static int Main(string[] args)
 		{
-			var dataDir = Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]);
+			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
 
 			if (!Directory.Exists(dataDir)) {
 				Console.Error.WriteLine("Data directory at {0} does not exist.", dataDir);
-				return 1;
+				return Exit(1);
 			}
 
 			var portfolioFile = Path.Combine(dataDir, "portfolio.js");
 			if (!File.Exists(portfolioFile)) {
 				Console.Error.WriteLine("Portfolio file at {0} does not exist.", portfolioFile);
-				return 2;
+				return Exit(2);
 			}
 
 			var portfolioFileContents = File.ReadAllText(portfolioFile, Encoding.UTF8);
 			var portfolio = JsonConvert.DeserializeObject<Portfolio>(portfolioFileContents);
+
+			var categoriesFile = Path.Combine(dataDir, "categories.js");
+			if (!File.Exists(categoriesFile))
+			{
+				Console.Error.WriteLine("Categories file at {0} does not exist.", categoriesFile);
+				return Exit(3);
+			}
+
+			var categoryFileContents = File.ReadAllText(categoriesFile, Encoding.UTF8);
+			var categories = JsonConvert.DeserializeObject<IEnumerable<Category>>(categoryFileContents);
 
 			var quoter = new YahooStockService(new QuoteServiceFactory());
 			var reporter = new StringValueReporter(quoter);
@@ -41,8 +51,13 @@ namespace PortfolioCalculator
 
 			Console.Write(report);
 
+			return Exit(0);
+		}
+
+		private static int Exit(int code)
+		{
 			Console.ReadKey(true);
-			return 0;
+			return code;
 		}
 	}
 }

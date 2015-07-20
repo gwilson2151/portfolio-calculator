@@ -51,10 +51,33 @@ msft: 100 x 15 = 1500
 			Assert.That(result, Is.EqualTo(expected));
 		}
 
-		[Test, Ignore]
+		[Test]
 		public void When_SecurityQuoter_Cannot_Find_Quote_Then_Report_Generation_Error_Message_Is_Written_To_String()
 		{
-			throw new NotImplementedException();
+			// setup
+			var portfolio = GenerateDefaultPortfolio();
+			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<string, decimal>
+			{
+				{"goog", new decimal(18.25)},
+				{"msft", new decimal(15)},
+			});
+
+			// execute
+			StringValueReporter reporter = new StringValueReporter(_quoterMock.Object);
+			var result = reporter.GetReport(portfolio);
+
+			// validate
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result, Is.Not.Empty);
+
+			const string expected = @"po' boy total = 3325.00
+mandingo total = 1825.00
+goog: 100 x 18.25 = 1825.00
+aapl: 200 x quote not found = unknown
+took total = 1500
+msft: 100 x 15 = 1500
+";
+			Assert.That(result, Is.EqualTo(expected));
 		}
 
 		private static Portfolio GenerateDefaultPortfolio()
