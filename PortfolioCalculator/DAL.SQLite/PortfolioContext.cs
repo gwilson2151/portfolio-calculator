@@ -2,6 +2,8 @@
 
 using Contracts;
 
+using SQLite.CodeFirst;
+
 namespace DAL.SQLite
 {
 	public class PortfolioContext : DbContext
@@ -18,6 +20,12 @@ namespace DAL.SQLite
 			: base("PortfolioContext")
 		{
 			
+		}
+
+		protected override void OnModelCreating(DbModelBuilder modelBuilder)
+		{
+			var sqliteInitializer = new SqliteCreateDatabaseIfNotExists<PortfolioContext>(modelBuilder);
+			Database.SetInitializer(sqliteInitializer);
 		}
 	}
 }

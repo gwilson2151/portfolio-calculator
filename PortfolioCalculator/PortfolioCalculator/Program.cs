@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +9,7 @@ using BLL;
 using BLL.Factories;
 
 using Contracts;
+
 using DAL.SQLite;
 using Newtonsoft.Json;
 
@@ -19,7 +19,6 @@ namespace PortfolioCalculator
 	{
 		static int Main(string[] args)
 		{
-			//SqliteTest();
 			//EF6Test();
 
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
@@ -53,7 +52,7 @@ namespace PortfolioCalculator
 			var report = reporter.GetReport(portfolio);
 
 			Console.Write(report);
-
+			
 			return Exit(0);
 		}
 
@@ -63,36 +62,10 @@ namespace PortfolioCalculator
 			return code;
 		}
 
-		public static void EF6Test()
+		private static void EF6Test()
 		{
-			PortfolioContext db = new PortfolioContext();
+			var db = new PortfolioContext();
 			var first = db.Portfolios.First();
-		}
-
-		private static void SqliteTest()
-		{
-			var conn = new SQLiteConnection("Data Source=portfolio.sqlite;Version=3;");
-			conn.Open();
-			//InitializeSqliteSchema(conn);
-			SQLiteCommand comm = new SQLiteCommand("select * from Portfolios;",conn);
-			SQLiteDataReader reader = comm.ExecuteReader();
-			while (reader.Read())
-				Console.WriteLine("Name: " + reader["name"]);
-			conn.Close();
-		}
-
-		private static void InitializeSqliteSchema(SQLiteConnection conn) {
-			string sql = "CREATE TABLE Portfolios (name VARCHAR(128))";
-			SQLiteCommand command = new SQLiteCommand(sql, conn);
-			command.ExecuteNonQuery();
-
-			sql = "insert into Portfolios (name) values ('Mandingo')";
-			command = new SQLiteCommand(sql, conn);
-			command.ExecuteNonQuery();
-
-			sql = "insert into Portfolios (name) values ('Brash')";
-			command = new SQLiteCommand(sql,conn);
-			command.ExecuteNonQuery();
 		}
 	}
 }
