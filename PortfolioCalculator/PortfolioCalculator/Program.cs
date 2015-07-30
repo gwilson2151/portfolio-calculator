@@ -66,6 +66,7 @@ namespace PortfolioCalculator
 		{
 			var db = new PortfolioContext();
 			var first = db.Portfolios.First();
+			var accounts = first.Accounts;
 		}
 	}
 }

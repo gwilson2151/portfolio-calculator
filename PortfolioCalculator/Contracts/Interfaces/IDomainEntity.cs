@@ -2,6 +2,6 @@
 {
 	public interface IDomainEntity
 	{
-		int Id { get; set; } 
+		long Id { get; set; } 
 	}
 }
