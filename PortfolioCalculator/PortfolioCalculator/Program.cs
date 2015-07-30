@@ -65,8 +65,10 @@ namespace PortfolioCalculator
 		private static void EF6Test()
 		{
 			var db = new PortfolioContext();
-			var first = db.Portfolios.First();
+			var first = db.Portfolios.Include("Accounts").First();
 			var accounts = first.Accounts;
+
+			var next = from p in db.Portfolios.Include("Accounts") select p;
 		}
 	}
 }
