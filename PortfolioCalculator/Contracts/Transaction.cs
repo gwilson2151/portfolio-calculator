@@ -10,5 +10,6 @@ namespace Contracts
 		public DateTime Date { get; set; }
 		public Security Security { get; set; }
 		public decimal Price { get; set; }
+		public decimal Shares { get; set; }
 	}
 }

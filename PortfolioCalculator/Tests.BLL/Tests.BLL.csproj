@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FundBotImporterTests.cs" />
     <Compile Include="StringValueReporterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="YahooStockServiceTests.cs" />
@@ -72,6 +73,10 @@
     <ProjectReference Include="..\Contracts\Contracts.csproj">
       <Project>{e2a63c4c-f1d9-4d56-a283-c751ae1a2c75}</Project>
       <Name>Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataGatherer\DataGatherer.csproj">
+      <Project>{51ba10b7-3f84-4873-99f0-6a9a207253ce}</Project>
+      <Name>DataGatherer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

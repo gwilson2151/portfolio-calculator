@@ -1,12 +1,10 @@
-﻿
-
-namespace DataGatherer
+﻿namespace DataGatherer
 {
 	public class TestDataGenerator
 	{
-		static int Main(string[] args)
+		private static int Main(string[] args)
 		{
-			
+			return 0;
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ using BLL;
 using BLL.Factories;
 
 using Contracts;
-
+using DataGatherer.Factories;
 using DAL.SQLite;
 using Newtonsoft.Json;
 
@@ -21,17 +22,67 @@ namespace PortfolioCalculator
 		{
 			//EF6Test();
 
+			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("help"))
+			{
+				Console.Write(@"import-fundbot - import buys.csv from fundbot and generate a sqlite db from the contents");
+			}
+
+			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("import-fundbot"))
+			{
+				return Exit(ImportFundbotOperation());
+			}
+
+			return Exit(DefaultOperation());
+		}
+
+		private static int ImportFundbotOperation()
+		{
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
 
-			if (!Directory.Exists(dataDir)) {
+			if (!Directory.Exists(dataDir))
+			{
 				Console.Error.WriteLine("Data directory at {0} does not exist.", dataDir);
-				return Exit(1);
+				return 1;
+			}
+
+			var fundbotBuysFile = Path.Combine(dataDir, "buys.csv");
+			if (!File.Exists(fundbotBuysFile))
+			{
+				Console.Error.WriteLine("Fundbot file at {0} does not exist.", fundbotBuysFile);
+				return 2;
+			}
+
+			var factory = new DataImporterFactory();
+			var fundBotImporter = factory.GetFundbotBuysFileTransactions(fundbotBuysFile);
+			var transactions = fundBotImporter.GetTransactions();
+
+			// which portfolio? account?
+
+			foreach (var transaction in transactions)
+			{
+				// need to see if security already exists
+				// need to see if transaction already exists
+				// key = symbol & date & shares
+			}
+
+			return 0;
+		}
+
+		private static int DefaultOperation()
+		{
+			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
+
+			if (!Directory.Exists(dataDir))
+			{
+				Console.Error.WriteLine("Data directory at {0} does not exist.", dataDir);
+				return 1;
 			}
 
 			var portfolioFile = Path.Combine(dataDir, "portfolio.js");
-			if (!File.Exists(portfolioFile)) {
+			if (!File.Exists(portfolioFile))
+			{
 				Console.Error.WriteLine("Portfolio file at {0} does not exist.", portfolioFile);
-				return Exit(2);
+				return 2;
 			}
 
 			var portfolioFileContents = File.ReadAllText(portfolioFile, Encoding.UTF8);
@@ -41,7 +92,7 @@ namespace PortfolioCalculator
 			if (!File.Exists(categoriesFile))
 			{
 				Console.Error.WriteLine("Categories file at {0} does not exist.", categoriesFile);
-				return Exit(3);
+				return 3;
 			}
 
 			var categoryFileContents = File.ReadAllText(categoriesFile, Encoding.UTF8);
@@ -52,8 +103,8 @@ namespace PortfolioCalculator
 			var report = reporter.GetReport(portfolio);
 
 			Console.Write(report);
-			
-			return Exit(0);
+
+			return 0;
 		}
 
 		private static int Exit(int code)
@@ -68,7 +119,7 @@ namespace PortfolioCalculator
 			var first = db.Portfolios.Include("Accounts").First();
 			var accounts = first.Accounts;
 
-			var next = from p in db.Portfolios.Include("Accounts") select p;
+			//var next = from p in db.Portfolios.Include("Accounts") select p;
 		}
 	}
 }
