@@ -25,7 +25,7 @@ namespace Tests.BLL
 		public void When_StringValueReporter_Given_Valid_Portfolio_Then_Report_Is_Written_To_String()
 		{
 			// setup
-			var portfolio = GenerateDefaultPortfolio();
+			var portfolio = TestDataGenerator.GenerateDefaultPortfolio();
 			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<string, decimal>
 			{
 				{"goog", new decimal(18.25)},
@@ -55,7 +55,7 @@ msft: 100 x 15 = 1500
 		public void When_SecurityQuoter_Cannot_Find_Quote_Then_Report_Generation_Error_Message_Is_Written_To_String()
 		{
 			// setup
-			var portfolio = GenerateDefaultPortfolio();
+			var portfolio = TestDataGenerator.GenerateDefaultPortfolio();
 			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<string, decimal>
 			{
 				{"goog", new decimal(18.25)},
@@ -78,55 +78,6 @@ took total = 1500
 msft: 100 x 15 = 1500
 ";
 			Assert.That(result, Is.EqualTo(expected));
-		}
-
-		private static Portfolio GenerateDefaultPortfolio()
-		{
-			Security goog = new Security {Symbol = "goog"};
-			Security msft = new Security {Symbol = "msft"};
-			Security aapl = new Security {Symbol = "aapl"};
-
-			Portfolio portfolio = new Portfolio
-			{
-				Name = "po' boy",
-				Accounts = new List<Account>()
-			};
-
-			Account mandingo = new Account
-			{
-				Name = "mandingo",
-				Portfolio = portfolio,
-				Positions = new List<Position>()
-			};
-			mandingo.Positions.Add(new Position
-			{
-				Account = mandingo,
-				Count = 100,
-				Security = goog
-			});
-			mandingo.Positions.Add(new Position
-			{
-				Account = mandingo,
-				Count = 200,
-				Security = aapl
-			});
-			portfolio.Accounts.Add(mandingo);
-
-			Account took = new Account
-			{
-				Name = "took",
-				Portfolio = portfolio,
-				Positions = new List<Position>()
-			};
-			took.Positions.Add(new Position
-			{
-				Account = took,
-				Count = 100,
-				Security = msft
-			});
-			portfolio.Accounts.Add(took);
-
-			return portfolio;
 		}
 	}
 }

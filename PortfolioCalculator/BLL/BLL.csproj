@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factories\QuoteServiceFactory.cs" />
+    <Compile Include="Interfaces\IPortfolioService.cs" />
     <Compile Include="Interfaces\IQuoteServiceFactory.cs" />
     <Compile Include="Interfaces\ISecurityQuoter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

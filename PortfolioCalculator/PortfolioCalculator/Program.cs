@@ -25,17 +25,24 @@ namespace PortfolioCalculator
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("help"))
 			{
 				Console.Write(@"import-fundbot - import buys.csv from fundbot and generate a sqlite db from the contents");
+				return Exit(0);
 			}
 
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("import-fundbot"))
 			{
-				return Exit(ImportFundbotOperation());
+				var portfolioName = args[1];
+				if (string.IsNullOrWhiteSpace(portfolioName))
+				{
+					Console.WriteLine(@"You must provide a portfolio name as the first argument.");
+					return Exit(4);
+				}
+				return Exit(ImportFundbotOperation(portfolioName));
 			}
 
 			return Exit(DefaultOperation());
 		}
 
-		private static int ImportFundbotOperation()
+		private static int ImportFundbotOperation(string portfolioName)
 		{
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
 
@@ -109,6 +116,7 @@ namespace PortfolioCalculator
 
 		private static int Exit(int code)
 		{
+			Console.WriteLine(@"Press any key to exit");
 			Console.ReadKey(true);
 			return code;
 		}
