@@ -51,6 +51,7 @@
     <Compile Include="Interfaces\IPortfolioService.cs" />
     <Compile Include="Interfaces\IQuoteServiceFactory.cs" />
     <Compile Include="Interfaces\ISecurityQuoter.cs" />
+    <Compile Include="PortfolioService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringValueReporter.cs" />
     <Compile Include="YahooStockService.cs" />
