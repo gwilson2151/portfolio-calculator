@@ -11,5 +11,12 @@ namespace Contracts
 		public Security Security { get; set; }
 		public decimal Price { get; set; }
 		public decimal Shares { get; set; }
+		public TransactionType Type { get; set; }
+
+		public bool Valid() {
+			if (Account != null && Date != default(DateTime) && Security != null && Shares > 0M)
+				return true;
+			return false;
+		}
 	}
 }

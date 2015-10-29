@@ -22,18 +22,19 @@ namespace Tests.BLL
 			{
 				Name = "mandingo",
 				Portfolio = portfolio,
-				Positions = new List<Position>()
+				Positions = new List<Position>(),
+				Transactions = new List<Transaction>()
 			};
 			mandingo.Positions.Add(new Position
 			{
 				Account = mandingo,
-				Count = 100,
+				Shares = 100M,
 				Security = goog
 			});
 			mandingo.Positions.Add(new Position
 			{
 				Account = mandingo,
-				Count = 200,
+				Shares = 200M,
 				Security = aapl
 			});
 			portfolio.Accounts.Add(mandingo);
@@ -42,14 +43,42 @@ namespace Tests.BLL
 			{
 				Name = "took",
 				Portfolio = portfolio,
-				Positions = new List<Position>()
+				Positions = new List<Position>(),
+				Transactions = new List<Transaction>()
 			};
 			took.Positions.Add(new Position
 			{
 				Account = took,
-				Count = 100,
+				Shares = 100M,
 				Security = msft
 			});
+			portfolio.Accounts.Add(took);
+
+			return portfolio;
+		}
+
+		public static Portfolio GenerateEmptyPortfolio() {
+			Portfolio portfolio = new Portfolio
+			{
+				Name = "po' boy",
+				Accounts = new List<Account>()
+			};
+			Account mandingo = new Account
+			{
+				Name = "mandingo",
+				Portfolio = portfolio,
+				Positions = new List<Position>(),
+				Transactions = new List<Transaction>()
+			};
+			portfolio.Accounts.Add(mandingo);
+
+			Account took = new Account
+			{
+				Name = "took",
+				Portfolio = portfolio,
+				Positions = new List<Position>(),
+				Transactions = new List<Transaction>()
+			};
 			portfolio.Accounts.Add(took);
 
 			return portfolio;

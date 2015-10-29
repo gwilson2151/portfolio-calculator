@@ -33,9 +33,9 @@ namespace BLL
 				{
 					var value = valuesDict[position];
 					if (value < 0M)
-						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Count, "quote not found", "unknown"));
+						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Shares, "quote not found", "unknown"));
 					else
-						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Count, quotes[position.Security.Symbol], value));
+						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Shares, quotes[position.Security.Symbol], value));
 				}
 			}
 
@@ -63,7 +63,7 @@ namespace BLL
 					try
 					{
 						var price = quotes[position.Security.Symbol];
-						var value = price * position.Count;
+						var value = price * position.Shares;
 						results.Add(position, value);
 					}
 					catch (KeyNotFoundException)
