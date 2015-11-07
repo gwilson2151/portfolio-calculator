@@ -71,7 +71,8 @@ namespace Tests.BLL
 		}
 
 		[Test]
-		public void When_Updating_Portfolio_With_Invalid_Transaction_Then_Exception_Is_Thrown() {
+		public void When_Updating_Portfolio_With_Invalid_Transaction_Then_Exception_Is_Thrown()
+		{
 			// setup
 			var portfolio = TestDataGenerator.GenerateEmptyPortfolio();
 			var portfolioService = new PortfolioService(portfolio);
@@ -118,7 +119,7 @@ namespace Tests.BLL
 			// verify
 			try
 			{
-				portfolioService.UpdateWith(new List<Transaction> {transaction});
+				portfolioService.UpdateWith(new List<Transaction> { transaction });
 			}
 			catch (Exception ex)
 			{
@@ -222,7 +223,8 @@ namespace Tests.BLL
 		}
 
 		[Test]
-		public void When_Updating_Account_With_Buy_Transaction_And_No_Position_Then_Account_Gains_Position() {
+		public void When_Updating_Account_With_Buy_Transaction_And_No_Position_Then_Account_Gains_Position()
+		{
 			// setup
 			Security goog = new Security { Symbol = "goog" };
 			var portfolio = TestDataGenerator.GenerateEmptyPortfolio();
@@ -274,6 +276,84 @@ namespace Tests.BLL
 
 			// verify
 			Assert.That(mandingo.Positions.Single().Shares, Is.EqualTo(110M));
+		}
+
+		[Test]
+		public void When_Updating_Account_With_Transaction_That_Already_Happened_Then_New_Transaction_Is_Ignored()
+		{
+			var portfolio = TestDataGenerator.GenerateDefaultPortfolio();
+			var mandingo = portfolio.Accounts.Single(a => a.Name.Equals("mandingo", StringComparison.InvariantCultureIgnoreCase));
+			Security yvr = new Security { Symbol = "yvr" };
+
+			var transactions = new List<Transaction>();
+			transactions.AddRange(mandingo.Transactions);
+			transactions.Add(new Transaction
+			{
+				Account = mandingo,
+				Date = DateTime.UtcNow,
+				Price = 10M,
+				Security = yvr,
+				Shares = 50M,
+				Type = TransactionType.Buy
+			});
+
+			var portfolioService = new PortfolioService(portfolio);
+			portfolioService.UpdateWith(transactions);
+
+			Assert.That(mandingo.Transactions.Count, Is.EqualTo(3));
+			var googPosition = mandingo.Positions.Single(p => p.Security.Symbol.Equals("goog", StringComparison.InvariantCultureIgnoreCase));
+			Assert.That(googPosition.Shares, Is.EqualTo(100M));
+			var aaplPosition = mandingo.Positions.Single(p => p.Security.Symbol.Equals("aapl", StringComparison.InvariantCultureIgnoreCase));
+			Assert.That(aaplPosition.Shares, Is.EqualTo(200M));
+			var yvrPosition = mandingo.Positions.Single(p => p.Security.Symbol.Equals("yvr", StringComparison.InvariantCultureIgnoreCase));
+			Assert.That(yvrPosition.Shares, Is.EqualTo(50M));
+		}
+
+		[Test]
+		public void When_Updating_Account_Then_Update_Is_Atomic()
+		{
+			var portfolio = TestDataGenerator.GenerateDefaultPortfolio();
+			var mandingo = portfolio.Accounts.Single(a => a.Name.Equals("mandingo", StringComparison.InvariantCultureIgnoreCase));
+			Security yvr = new Security { Symbol = "yvr" };
+			Security goog = new Security { Symbol = "goog" };
+
+			var transactions = new List<Transaction>(2)
+			{
+				new Transaction
+				{
+					Account = mandingo,
+					Date = DateTime.UtcNow,
+					Price = 10M,
+					Security = yvr,
+					Shares = 100M,
+					Type = TransactionType.Buy
+				},
+				new Transaction
+				{
+					Account = mandingo,
+					Date = DateTime.UtcNow,
+					Price = 10M,
+					Security = goog,
+					Shares = 10M,
+					Type = TransactionType.Sell
+				},
+				new Transaction
+				{
+					Account = mandingo,
+					Date = DateTime.UtcNow,
+					Price = 10M,
+					Security = new Security { Symbol = "not_owned" },
+					Shares = 100M,
+					Type = TransactionType.Sell
+				}
+			};
+
+			var portfolioService = new PortfolioService(portfolio);
+			Assert.Throws<Exception>(() => portfolioService.UpdateWith(transactions));
+
+			Assert.That(mandingo.Positions.Count, Is.EqualTo(2));
+			var googPosition = mandingo.Positions.Single(p => p.Security.Symbol.Equals(goog.Symbol, StringComparison.InvariantCultureIgnoreCase));
+			Assert.That(googPosition.Shares, Is.EqualTo(100M));
 		}
 	}
 }

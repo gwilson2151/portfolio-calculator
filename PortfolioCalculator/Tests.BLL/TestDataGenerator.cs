@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-
+﻿using System;
+using System.Collections.Generic;
 using Contracts;
 
 namespace Tests.BLL
@@ -31,11 +31,29 @@ namespace Tests.BLL
 				Shares = 100M,
 				Security = goog
 			});
+			mandingo.Transactions.Add(new Transaction
+			{
+				Account = mandingo,
+				Date = DateTime.UtcNow,
+				Price = 12.34M,
+				Security = goog,
+				Shares = 100M,
+				Type = TransactionType.Buy
+			});
 			mandingo.Positions.Add(new Position
 			{
 				Account = mandingo,
 				Shares = 200M,
 				Security = aapl
+			});
+			mandingo.Transactions.Add(new Transaction
+			{
+				Account = mandingo,
+				Date = DateTime.UtcNow,
+				Price = 23.45M,
+				Security = aapl,
+				Shares = 200M,
+				Type = TransactionType.Buy
 			});
 			portfolio.Accounts.Add(mandingo);
 
@@ -52,12 +70,22 @@ namespace Tests.BLL
 				Shares = 100M,
 				Security = msft
 			});
+			took.Transactions.Add(new Transaction
+			{
+				Account = took,
+				Date = DateTime.UtcNow,
+				Price = 34.56M,
+				Security = msft,
+				Shares = 100M,
+				Type = TransactionType.Buy
+			});
 			portfolio.Accounts.Add(took);
 
 			return portfolio;
 		}
 
-		public static Portfolio GenerateEmptyPortfolio() {
+		public static Portfolio GenerateEmptyPortfolio()
+		{
 			Portfolio portfolio = new Portfolio
 			{
 				Name = "po' boy",

@@ -14,7 +14,7 @@ namespace Contracts
 		public TransactionType Type { get; set; }
 
 		public bool Valid() {
-			if (Account != null && Date != default(DateTime) && Security != null && Shares > 0M)
+			if (Account != null && Date != default(DateTime) && Security != null && Shares > 0M && Price >= 0M)
 				return true;
 			return false;
 		}

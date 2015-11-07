@@ -20,18 +20,20 @@ namespace BLL
 		// Also needs to have atomicity added.
 		public void UpdateWith(IEnumerable<Transaction> transactions)
 		{
-			if (transactions.Any(t => !t.Valid()))
+			var transactionList = transactions.ToList();
+
+			if (transactionList.Any(t => !t.Valid()))
 				throw new Exception("One or more transactions are invalid.");
 
-			foreach (var transactionAccount in transactions.Select(t => t.Account).Distinct())
+			foreach (var transactionAccount in transactionList.Select(t => t.Account).Distinct())
 			{
 				var account = _portfolio.Accounts.Single(a => a.Name.Equals(transactionAccount.Name, StringComparison.InvariantCultureIgnoreCase));
-				var transactionsForAccount = transactions.Where(t => t.Account.Name.Equals(account.Name, StringComparison.InvariantCultureIgnoreCase))
+				var transactionsForAccount = transactionList.Where(t => t.Account.Name.Equals(account.Name, StringComparison.InvariantCultureIgnoreCase))
 														 .OrderBy(t => t.Date);
 
 				foreach (var transaction in transactionsForAccount)
 				{
-					var position = account.Positions.SingleOrDefault(p => p.Security.Symbol.Equals(transaction.Security.Symbol));
+					var position = account.Positions.SingleOrDefault(p => p.Security.Symbol.Equals(transaction.Security.Symbol, StringComparison.InvariantCultureIgnoreCase));
 
 					if (position == null)
 					{
