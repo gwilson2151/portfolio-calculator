@@ -354,6 +354,12 @@ namespace Tests.BLL
 			Assert.That(mandingo.Positions.Count, Is.EqualTo(2));
 			var googPosition = mandingo.Positions.Single(p => p.Security.Symbol.Equals(goog.Symbol, StringComparison.InvariantCultureIgnoreCase));
 			Assert.That(googPosition.Shares, Is.EqualTo(100M));
+			var aaplPosition = mandingo.Positions.Single(p => p.Security.Symbol.Equals("aapl", StringComparison.InvariantCultureIgnoreCase));
+			Assert.That(aaplPosition.Shares, Is.EqualTo(200M));
+
+			var took = portfolio.Accounts.Single(a => a.Name.Equals("took", StringComparison.InvariantCultureIgnoreCase));
+			var msftPosition = took.Positions.Single(p => p.Security.Symbol.Equals("msft", StringComparison.InvariantCultureIgnoreCase));
+			Assert.That(msftPosition.Shares, Is.EqualTo(100M));
 		}
 	}
 }
