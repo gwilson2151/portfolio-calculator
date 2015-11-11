@@ -278,7 +278,7 @@ namespace Tests.BLL
 			Assert.That(mandingo.Positions.Single().Shares, Is.EqualTo(110M));
 		}
 
-		[Test]
+		[Ignore("Need to rethink how this functionality might work."), Test]
 		public void When_Updating_Account_With_Transaction_That_Already_Happened_Then_New_Transaction_Is_Ignored()
 		{
 			var portfolio = TestDataGenerator.GenerateDefaultPortfolio();

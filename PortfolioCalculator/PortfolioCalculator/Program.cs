@@ -30,13 +30,13 @@ namespace PortfolioCalculator
 
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("import-fundbot"))
 			{
-				var portfolioName = args[1];
-				if (string.IsNullOrWhiteSpace(portfolioName))
+				if (args.Count() < 2 || string.IsNullOrWhiteSpace(args[1]))
 				{
-					Console.WriteLine(@"You must provide a portfolio name as the first argument.");
+					Console.WriteLine(@"You must provide a portfolio name as the second argument.");
 					return Exit(4);
 				}
-				return Exit(ImportFundbotOperation(portfolioName));
+
+				return Exit(ImportFundbotOperation(args[1]));
 			}
 
 			return Exit(DefaultOperation());

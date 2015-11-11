@@ -8,7 +8,7 @@ namespace DataGatherer.Factories
 	{
 		public ITransactionReader GetFundbotBuysFileTransactions(string filePath)
 		{
-			CsvReader csv = new CsvReader(new StreamReader(filePath), true);
+			CsvReader csv = new CsvReader(new StreamReader(filePath), false);
 			return new FundBotImporter(csv);
 		}
 	}

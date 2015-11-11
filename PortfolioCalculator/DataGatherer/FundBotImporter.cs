@@ -18,7 +18,37 @@ namespace DataGatherer
 
 		public IEnumerable<Transaction> GetTransactions()
 		{
-			throw new NotImplementedException();
+			var transactions = new List<Transaction>();
+
+			while (_csvReader.ReadNextRecord())
+			{
+				Transaction transaction;
+				if (_csvReader.HasHeaders)
+				{
+					transaction = new Transaction
+					{
+						Security = new Security { Symbol = _csvReader["Symbol"] },
+						Date = DateTime.Parse(_csvReader["Date"]),
+						Price = Decimal.Parse(_csvReader["Price"]),
+						Shares = Decimal.Parse(_csvReader["Shares"]),
+						Type = TransactionType.Buy
+					};
+				}
+				else
+				{
+					transaction = new Transaction
+					{
+						Security = new Security { Symbol = _csvReader[0] },
+						Date = DateTime.Parse(_csvReader[1]),
+						Price = Decimal.Parse(_csvReader[3]),
+						Shares = Decimal.Parse(_csvReader[2]),
+						Type = TransactionType.Buy
+					};
+				}
+				transactions.Add(transaction);
+			}
+
+			return transactions;
 		}
 
 		#region IDisposable
