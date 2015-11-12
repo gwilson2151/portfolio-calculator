@@ -20,7 +20,7 @@ namespace Tests.BLL
 
 			var transactions = fundBotImporter.GetTransactions().ToList();
 
-			Assert.That(transactions.Count(), Is.EqualTo(1));
+			Assert.That(transactions.Count, Is.EqualTo(1));
 			var transaction = transactions.Single();
 			Assert.That(transaction.Security.Symbol, Is.EqualTo("XFN.TO"));
 			Assert.That(transaction.Price, Is.EqualTo(29.97M));

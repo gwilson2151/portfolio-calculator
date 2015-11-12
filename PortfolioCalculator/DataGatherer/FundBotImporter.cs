@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+
 using Contracts;
 using DataGatherer.Interfaces;
 using LumenWorks.Framework.IO.Csv;
@@ -28,7 +30,7 @@ namespace DataGatherer
 					transaction = new Transaction
 					{
 						Security = new Security { Symbol = _csvReader["Symbol"] },
-						Date = DateTime.Parse(_csvReader["Date"]),
+						Date = DateTime.Parse(_csvReader["Date"], CultureInfo.CreateSpecificCulture("en-CA")),
 						Price = Decimal.Parse(_csvReader["Price"]),
 						Shares = Decimal.Parse(_csvReader["Shares"]),
 						Type = TransactionType.Buy
@@ -39,7 +41,7 @@ namespace DataGatherer
 					transaction = new Transaction
 					{
 						Security = new Security { Symbol = _csvReader[0] },
-						Date = DateTime.Parse(_csvReader[1]),
+						Date = DateTime.Parse(_csvReader[1], CultureInfo.CreateSpecificCulture("en-CA")),
 						Price = Decimal.Parse(_csvReader[3]),
 						Shares = Decimal.Parse(_csvReader[2]),
 						Type = TransactionType.Buy

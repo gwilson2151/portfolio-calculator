@@ -10,5 +10,17 @@ namespace Contracts
 		public Portfolio Portfolio { get; set; }
 		public List<Transaction> Transactions { get; set; }
 		public List<Position> Positions { get; set; }
+
+		public Account()
+		{
+			Transactions = new List<Transaction>();
+			Positions = new List<Position>();
+		}
+
+		public Account(Portfolio portfolio)
+			: this()
+		{
+			Portfolio = portfolio;
+		}
 	}
 }

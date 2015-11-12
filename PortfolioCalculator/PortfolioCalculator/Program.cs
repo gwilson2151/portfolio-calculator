@@ -18,6 +18,8 @@ namespace PortfolioCalculator
 {
 	class Program
 	{
+		private const string FundbotPortfolioName = "b6cc9e27-77fb-4a75-a92f-992347ef3f08";
+
 		static int Main(string[] args)
 		{
 			//EF6Test();
@@ -30,13 +32,7 @@ namespace PortfolioCalculator
 
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("import-fundbot"))
 			{
-				if (args.Count() < 2 || string.IsNullOrWhiteSpace(args[1]))
-				{
-					Console.WriteLine(@"You must provide a portfolio name as the second argument.");
-					return Exit(4);
-				}
-
-				return Exit(ImportFundbotOperation(args[1]));
+				return Exit(ImportFundbotOperation(FundbotPortfolioName));
 			}
 
 			return Exit(DefaultOperation());
@@ -64,13 +60,37 @@ namespace PortfolioCalculator
 			var transactions = fundBotImporter.GetTransactions();
 
 			// which portfolio? account?
+			var account = new Account
+			{
+				Name = portfolioName
+			};
+			var portfolio = new Portfolio
+			{
+				Name = portfolioName,
+				Accounts = new List<Account> { account }
+			};
+			account.Portfolio = portfolio;
 
 			foreach (var transaction in transactions)
 			{
-				// need to see if security already exists
-				// need to see if transaction already exists
-				// key = symbol & date & shares
+				transaction.Account = account;
 			}
+
+			var portfolioService = new PortfolioService(portfolio);
+			portfolioService.UpdateWith(transactions);
+
+			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var reporter = new StringValueReporter(quoter);
+			var report = reporter.GetReport(portfolio);
+
+			Console.Write(report);
+			
+			//foreach (var transaction in transactions)
+			//{
+			//	// need to see if security already exists
+			//	// need to see if transaction already exists
+			//	// key = symbol & date & shares
+			//}
 
 			return 0;
 		}
