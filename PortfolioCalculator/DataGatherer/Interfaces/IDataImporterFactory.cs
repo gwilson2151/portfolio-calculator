@@ -5,7 +5,8 @@ namespace DataGatherer.Interfaces
 {
 	public interface IDataImporterFactory
 	{
-		ITransactionReader GetFundbotBuysFileTransactions(string filePath);
+		ITransactionReader GetFundbotTransactions(string filePath);
 		//ICategoryReader GetFundbotWeightingsFileWeights(string filePath);
+		ICategoryReader GetFundbotCategories(string filePath);
 	}
 }

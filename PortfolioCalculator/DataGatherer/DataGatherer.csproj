@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Factories\DataImporterFactory.cs" />
     <Compile Include="FundBotImporter.cs" />
+    <Compile Include="Interfaces\ICategoryReader.cs" />
     <Compile Include="Interfaces\IDataImporterFactory.cs" />
     <Compile Include="Interfaces\ITransactionReader.cs" />
     <Compile Include="TestDataGenerator.cs" />

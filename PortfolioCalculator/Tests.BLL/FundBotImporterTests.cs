@@ -27,5 +27,26 @@ namespace Tests.BLL
 			Assert.That(transaction.Shares, Is.EqualTo(100M));
 			Assert.That(transaction.Date, Is.EqualTo(new DateTime(2014, 5, 6)));
 		}
+
+		[Test]
+		public void When_FundBotImporter_Given_Reader_Then_Returns_Categories()
+		{
+			const string test = @"ZDV.TO,CAD,CAD,Equity
+XSB.TO,CAD,CAD,Bonds
+XSU.TO,CAD,USD,Equity
+XIN.TO,CAD,INTL,Equity";
+			var csvReader = new CsvReader(new StringReader(test), false);
+			var fundBotImporter = new FundBotImporter(csvReader);
+
+			var categories = fundBotImporter.GetCategories().ToList();
+
+			Assert.That(categories.Count, Is.EqualTo(3));
+			var region = categories.Single(c => c.Name.Equals("region", StringComparison.InvariantCultureIgnoreCase));
+			var assetClass = categories.Single(c => c.Name.Equals("assetclass", StringComparison.InvariantCultureIgnoreCase));
+			var currency = categories.Single(c => c.Name.Equals("currency", StringComparison.InvariantCultureIgnoreCase));
+			Assert.That(region.Values.Count, Is.EqualTo(3));
+			Assert.That(assetClass.Values.Count, Is.EqualTo(2));
+			Assert.That(currency.Values.Count, Is.EqualTo(1));
+		}
 	}
 }

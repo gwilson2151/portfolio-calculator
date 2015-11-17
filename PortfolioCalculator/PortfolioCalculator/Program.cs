@@ -20,7 +20,7 @@ namespace PortfolioCalculator
 	{
 		private const string FundbotPortfolioName = "b6cc9e27-77fb-4a75-a92f-992347ef3f08";
 
-		private enum ErrorCodes
+		private enum ErrorCode
 		{
 			NoError,
 			DirectoryMissing,
@@ -37,33 +37,38 @@ namespace PortfolioCalculator
 				return Exit(0);
 			}
 
-			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("report-fundbot"))
+			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("fundbot-value-report"))
 			{
-				return Exit(QuickFundbotReportOperation(FundbotPortfolioName));
+				return Exit(QuickFundbotValueReportOperation(FundbotPortfolioName));
+			}
+
+			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("fundbot-weight-report"))
+			{
+				return Exit(QuickFundbotWeightReportOperation(FundbotPortfolioName));
 			}
 
 			return Exit(DefaultOperation());
 		}
 
-		private static ErrorCodes QuickFundbotReportOperation(string portfolioName)
+		private static ErrorCode QuickFundbotValueReportOperation(string portfolioName)
 		{
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
 
 			if (!Directory.Exists(dataDir))
 			{
 				Console.Error.WriteLine("Data directory at {0} does not exist.", dataDir);
-				return ErrorCodes.DirectoryMissing;
+				return ErrorCode.DirectoryMissing;
 			}
 
 			var fundbotBuysFile = Path.Combine(dataDir, "buys.csv");
 			if (!File.Exists(fundbotBuysFile))
 			{
 				Console.Error.WriteLine("Fundbot file at {0} does not exist.", fundbotBuysFile);
-				return ErrorCodes.FileMissing;
+				return ErrorCode.FileMissing;
 			}
 
 			var factory = new DataImporterFactory();
-			var fundBotImporter = factory.GetFundbotBuysFileTransactions(fundbotBuysFile);
+			var fundBotImporter = factory.GetFundbotTransactions(fundbotBuysFile);
 			var transactions = fundBotImporter.GetTransactions();
 
 			var account = new Account
@@ -91,28 +96,81 @@ namespace PortfolioCalculator
 
 			Console.Write(report);
 
-			return ErrorCodes.NoError;
+			return ErrorCode.NoError;
 		}
 
-		private static ErrorCodes ImportFundbotOperation(string portfolioName)
+		private static ErrorCode QuickFundbotWeightReportOperation(string portfolioName)
 		{
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
 
 			if (!Directory.Exists(dataDir))
 			{
 				Console.Error.WriteLine("Data directory at {0} does not exist.", dataDir);
-				return ErrorCodes.DirectoryMissing;
+				return ErrorCode.DirectoryMissing;
 			}
 
 			var fundbotBuysFile = Path.Combine(dataDir, "buys.csv");
 			if (!File.Exists(fundbotBuysFile))
 			{
 				Console.Error.WriteLine("Fundbot file at {0} does not exist.", fundbotBuysFile);
-				return ErrorCodes.FileMissing;
+				return ErrorCode.FileMissing;
+			}
+
+			var fundbotCategoriesFile = Path.Combine(dataDir, "categories.csv");
+			if (!File.Exists(fundbotCategoriesFile))
+			{
+				Console.Error.WriteLine("Fundbot file at {0} does not exist.", fundbotCategoriesFile);
+				return ErrorCode.FileMissing;
 			}
 
 			var factory = new DataImporterFactory();
-			var fundBotImporter = factory.GetFundbotBuysFileTransactions(fundbotBuysFile);
+			var transactionReader = factory.GetFundbotTransactions(fundbotBuysFile);
+			var transactions = transactionReader.GetTransactions();
+
+			var account = new Account
+			{
+				Name = portfolioName
+			};
+			var portfolio = new Portfolio
+			{
+				Name = portfolioName,
+				Accounts = new List<Account> { account }
+			};
+			account.Portfolio = portfolio;
+
+			foreach (var transaction in transactions)
+			{
+				transaction.Account = account;
+			}
+
+			var portfolioService = new PortfolioService(portfolio);
+			portfolioService.UpdateWith(transactions);
+
+			var categoryReader = factory.GetFundbotCategories(fundbotCategoriesFile);
+			var categories = categoryReader.GetCategories();
+
+			return ErrorCode.NoError;
+		}
+
+		private static ErrorCode ImportFundbotOperation(string portfolioName)
+		{
+			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
+
+			if (!Directory.Exists(dataDir))
+			{
+				Console.Error.WriteLine("Data directory at {0} does not exist.", dataDir);
+				return ErrorCode.DirectoryMissing;
+			}
+
+			var fundbotBuysFile = Path.Combine(dataDir, "buys.csv");
+			if (!File.Exists(fundbotBuysFile))
+			{
+				Console.Error.WriteLine("Fundbot file at {0} does not exist.", fundbotBuysFile);
+				return ErrorCode.FileMissing;
+			}
+
+			var factory = new DataImporterFactory();
+			var fundBotImporter = factory.GetFundbotTransactions(fundbotBuysFile);
 			var transactions = fundBotImporter.GetTransactions();
 
 			// which portfolio? account?
@@ -148,24 +206,24 @@ namespace PortfolioCalculator
 			//	// key = symbol & date & shares
 			//}
 
-			return ErrorCodes.NoError;
+			return ErrorCode.NoError;
 		}
 
-		private static ErrorCodes DefaultOperation()
+		private static ErrorCode DefaultOperation()
 		{
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
 
 			if (!Directory.Exists(dataDir))
 			{
 				Console.Error.WriteLine("Data directory at {0} does not exist.", dataDir);
-				return ErrorCodes.DirectoryMissing;
+				return ErrorCode.DirectoryMissing;
 			}
 
 			var portfolioFile = Path.Combine(dataDir, "portfolio.js");
 			if (!File.Exists(portfolioFile))
 			{
 				Console.Error.WriteLine("Portfolio file at {0} does not exist.", portfolioFile);
-				return ErrorCodes.FileMissing;
+				return ErrorCode.FileMissing;
 			}
 
 			var portfolioFileContents = File.ReadAllText(portfolioFile, Encoding.UTF8);
@@ -175,7 +233,7 @@ namespace PortfolioCalculator
 			if (!File.Exists(categoriesFile))
 			{
 				Console.Error.WriteLine("Categories file at {0} does not exist.", categoriesFile);
-				return ErrorCodes.FileMissing;
+				return ErrorCode.FileMissing;
 			}
 
 			var categoryFileContents = File.ReadAllText(categoriesFile, Encoding.UTF8);
@@ -187,10 +245,10 @@ namespace PortfolioCalculator
 
 			Console.Write(report);
 
-			return ErrorCodes.NoError;
+			return ErrorCode.NoError;
 		}
 
-		private static int Exit(ErrorCodes code)
+		private static int Exit(ErrorCode code)
 		{
 			Console.WriteLine(@"Press any key to exit");
 			Console.ReadKey(true);

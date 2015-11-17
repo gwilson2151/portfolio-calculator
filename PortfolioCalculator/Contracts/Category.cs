@@ -9,5 +9,10 @@ namespace Contracts
 		public long Id { get; set; }
 		public string Name { get; set; }
 		public IList<CategoryValue> Values { get; set; }
+
+		public Category()
+		{
+			Values = new List<CategoryValue>();
+		}
 	}
 }
