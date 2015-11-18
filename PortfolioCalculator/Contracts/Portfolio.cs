@@ -8,5 +8,10 @@ namespace Contracts
 		public long Id { get; set; }
 		public string Name { get; set; }
 		public IList<Account> Accounts { get; set; }
+
+		public Portfolio()
+		{
+			Accounts = new List<Account>();
+		}
     }
 }

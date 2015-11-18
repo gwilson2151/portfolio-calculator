@@ -28,9 +28,9 @@ namespace Tests.BLL
 			var portfolio = TestDataGenerator.GenerateDefaultPortfolio();
 			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<string, decimal>
 			{
-				{"goog", new decimal(18.25)},
-				{"msft", new decimal(15)},
-				{"aapl", new decimal(9.36)},
+				{"goog", 18.25M},
+				{"msft", 15M},
+				{"aapl", 9.36M},
 			});
 
 			// execute

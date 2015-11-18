@@ -54,6 +54,7 @@
     <Compile Include="PortfolioService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringValueReporter.cs" />
+    <Compile Include="StringWeightReporter.cs" />
     <Compile Include="YahooStockService.cs" />
   </ItemGroup>
   <ItemGroup>
