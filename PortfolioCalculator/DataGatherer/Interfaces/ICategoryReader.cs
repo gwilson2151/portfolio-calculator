@@ -6,6 +6,6 @@ namespace DataGatherer.Interfaces
 {
 	public interface ICategoryReader
 	{
-		IEnumerable<Category> GetCategories();
+		void GetCategoriesAndWeights(out IEnumerable<Category> categories, out IEnumerable<CategoryWeight> categoryWeights);
 	}
 }

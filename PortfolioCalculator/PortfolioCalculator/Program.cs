@@ -147,7 +147,9 @@ namespace PortfolioCalculator
 			portfolioService.UpdateWith(transactions);
 
 			var categoryReader = factory.GetFundbotCategories(fundbotCategoriesFile);
-			var categories = categoryReader.GetCategories();
+			IEnumerable<Category> categories;
+			IEnumerable<CategoryWeight> categoryWeights;
+			categoryReader.GetCategoriesAndWeights(out categories, out categoryWeights);
 
 			return ErrorCode.NoError;
 		}

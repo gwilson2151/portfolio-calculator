@@ -14,9 +14,9 @@ namespace DataGatherer
 		private CsvReader _csvReader;
 		private bool _disposed;
 
-		private const string RegionKey = "region";
-		private const string AssetClassKey = "assetClass";
-		private const string CurrencyKey = "currency";
+		private const string RegionName = "Region";
+		private const string AssetClassName = "Asset Class";
+		private const string CurrencyName = "Currency";
 
 		public FundBotImporter(CsvReader reader)
 		{
@@ -58,35 +58,67 @@ namespace DataGatherer
 			return transactions;
 		}
 
-		public IEnumerable<Category> GetCategories()
+		public void GetCategoriesAndWeights(out IEnumerable<Category> categories, out IEnumerable<CategoryWeight> categoryWeights)
 		{
-			var region = new Category { Name = RegionKey };
-			var assetClass = new Category { Name = AssetClassKey };
-			var currency = new Category { Name = CurrencyKey };
+			var region = new Category { Name = RegionName };
+			var assetClass = new Category { Name = AssetClassName };
+			var currency = new Category { Name = CurrencyName };
+
+			var weights = new List<CategoryWeight>();
 
 			while (_csvReader.ReadNextRecord())
 			{
+				Security security;
+				string currencyText, regionText, assetClassText;
+
 				if (_csvReader.HasHeaders)
 				{
-					
+					security = new Security { Symbol = _csvReader["Symbol"] };
+					currencyText = _csvReader["Currency"];
+					regionText = _csvReader["Region"];
+					assetClassText = _csvReader["AssetClass"];
 				}
 				else
 				{
-					var security = new Security {Symbol = _csvReader[0]};
-					var currencyValue = _csvReader[1];
-					var regionValue = _csvReader[2];
-					var assetClassValue = _csvReader[3];
-
-					if (!region.Values.Any(v => v.Name.Equals(regionValue, StringComparison.InvariantCultureIgnoreCase)))
-						region.Values.Add(new CategoryValue { Category = region, Name = regionValue});
-					if (!assetClass.Values.Any(v => v.Name.Equals(assetClassValue, StringComparison.InvariantCultureIgnoreCase)))
-						assetClass.Values.Add(new CategoryValue { Category = assetClass, Name = assetClassValue });
-					if (!currency.Values.Any(v => v.Name.Equals(currencyValue, StringComparison.InvariantCultureIgnoreCase)))
-						currency.Values.Add(new CategoryValue { Category = currency, Name = currencyValue });
+					security = new Security { Symbol = _csvReader[0] };
+					currencyText = _csvReader[1];
+					regionText = _csvReader[2];
+					assetClassText = _csvReader[3];
 				}
+
+				if (!region.Values.Any(v => v.Name.Equals(regionText, StringComparison.InvariantCultureIgnoreCase)))
+					region.Values.Add(new CategoryValue { Category = region, Name = regionText });
+				if (!assetClass.Values.Any(v => v.Name.Equals(assetClassText, StringComparison.InvariantCultureIgnoreCase)))
+					assetClass.Values.Add(new CategoryValue { Category = assetClass, Name = assetClassText });
+				if (!currency.Values.Any(v => v.Name.Equals(currencyText, StringComparison.InvariantCultureIgnoreCase)))
+					currency.Values.Add(new CategoryValue { Category = currency, Name = currencyText });
+
+				var regionValue = region.Values.Single(v => v.Name.Equals(regionText, StringComparison.InvariantCultureIgnoreCase));
+				var assetClassValue = assetClass.Values.Single(v => v.Name.Equals(assetClassText, StringComparison.InvariantCultureIgnoreCase));
+				var currencyValue = currency.Values.Single(v => v.Name.Equals(currencyText, StringComparison.InvariantCultureIgnoreCase));
+
+				weights.Add(new CategoryWeight
+				{
+					Security = security,
+					Value = regionValue,
+					Weight = 100M
+				});
+				weights.Add(new CategoryWeight
+				{
+					Security = security,
+					Value = assetClassValue,
+					Weight = 100M
+				});
+				weights.Add(new CategoryWeight
+				{
+					Security = security,
+					Value = currencyValue,
+					Weight = 100M
+				});
 			}
 
-			return new List<Category> {region, assetClass, currency};
+			categories = new List<Category> { region, assetClass, currency };
+			categoryWeights = weights;
 		}
 
 		#region IDisposable
