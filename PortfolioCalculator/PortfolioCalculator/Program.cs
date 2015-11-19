@@ -148,8 +148,14 @@ namespace PortfolioCalculator
 
 			var categoryReader = factory.GetFundbotCategories(fundbotCategoriesFile);
 			IEnumerable<Category> categories;
-			IEnumerable<CategoryWeight> categoryWeights;
-			categoryReader.GetCategoriesAndWeights(out categories, out categoryWeights);
+			IEnumerable<CategoryWeight> weights;
+			categoryReader.GetCategoriesAndWeights(out categories, out weights);
+
+			var quoter = new YahooStockService(new QuoteServiceFactory());
+			StringWeightReporter reporter = new StringWeightReporter(quoter);
+			var report = reporter.GetReport(portfolio, categories, weights);
+
+			Console.Write(report);
 
 			return ErrorCode.NoError;
 		}
