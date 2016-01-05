@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using QuestradeAPI;
 
@@ -16,23 +17,33 @@ namespace BLL
 			_refreshToken = refreshToken;
 		}
 
-		private void GetAccounts()
+		public List<Questrade.BusinessObjects.Entities.AccountData> GetAccounts()
 		{
 			EnsureAuthenticated();
 			var response = GetAccountsResponse.GetAccounts(_authToken);
+			return response.Accounts;
+		}
 
+		public List<Questrade.BusinessObjects.Entities.PositionData> GetPositions(Questrade.BusinessObjects.Entities.AccountData account)
+		{
+			EnsureAuthenticated();
+			var response = GetPositionsResponse.GetPositions(_authToken, account.m_number);
+			return response.Positions;
 		}
 
 		private void EnsureAuthenticated()
 		{
 			if (_authToken == null)
 			{
-				_authToken = AuthAgent.GetInstance().Authenticate(_refreshToken, isDemo: true);
+				_authToken = AuthAgent.GetInstance().Authenticate(_refreshToken, isDemo: false);
 			}
 			else if (!_authToken.IsValid)
 			{
 				_authToken.Reauthenticate();
 			}
+
+			if (!_authToken.IsValid)
+				throw new Exception(string.Format("Couldn't authenticate with API. message: {0}", _authToken.ErrorMessage));
 		}
 
 		#region IDisposable
