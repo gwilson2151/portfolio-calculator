@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+
+using Contracts;
 
 using QuestradeAPI;
 
@@ -17,18 +20,26 @@ namespace BLL
 			_refreshToken = refreshToken;
 		}
 
-		public List<Questrade.BusinessObjects.Entities.AccountData> GetAccounts()
+		public List<Account> GetAccounts()
 		{
 			EnsureAuthenticated();
 			var response = GetAccountsResponse.GetAccounts(_authToken);
-			return response.Accounts;
+			return response.Accounts.Select(a => new Account { Name = a.m_number }).ToList();
 		}
 
-		public List<Questrade.BusinessObjects.Entities.PositionData> GetPositions(Questrade.BusinessObjects.Entities.AccountData account)
+		public List<Position> GetPositions(Account account)
 		{
 			EnsureAuthenticated();
-			var response = GetPositionsResponse.GetPositions(_authToken, account.m_number);
-			return response.Positions;
+			var response = GetPositionsResponse.GetPositions(_authToken, account.Name);
+			return response.Positions.Select(qp => new Position
+			{
+				Account = account,
+				Security = new Security
+				{
+					Symbol = qp.m_symbol
+				},
+				Shares = Convert.ToDecimal(qp.m_openQuantity)
+			}).ToList();
 		}
 
 		private void EnsureAuthenticated()

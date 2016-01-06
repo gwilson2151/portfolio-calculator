@@ -26,39 +26,26 @@ namespace Tests.BLL
 				return;
 			}
 
-			var qapikeyFile = Path.Combine(dataDir, "qapikey");
-			if (!File.Exists(qapikeyFile))
+			var qapikeyFilePath = Path.Combine(dataDir, "qapikey");
+			if (!File.Exists(qapikeyFilePath))
 			{
-				Console.Error.WriteLine("qapikey file at {0} does not exist.", qapikeyFile);
+				Console.Error.WriteLine("qapikey file at {0} does not exist.", qapikeyFilePath);
 				return;
 			}
 
-			var qapikeyReader = new StreamReader(qapikeyFile);
-			var qapikey = qapikeyReader.ReadToEnd();
-
-			var accounts = new List<Account>();
+			string qapikey;
+			using (var qapikeyReader = new StreamReader(qapikeyFilePath))
+			{
+				qapikey = qapikeyReader.ReadToEnd();
+			}
 
 			using (var api = new QuestradeService(qapikey))
 			{
-				var qaccounts = api.GetAccounts();
+				var accounts = api.GetAccounts();
 
-				foreach (var qaccount in qaccounts)
+				foreach (var account in accounts)
 				{
-					var account = new Account
-					{
-						Name = qaccount.m_number
-					};
-					var positions = api.GetPositions(qaccount);
-					account.Positions.AddRange(positions.Select(qp => new Position
-					{
-						Account = account,
-						Security = new Security
-						{
-							Symbol = qp.m_symbol
-						},
-						Shares = Convert.ToDecimal(qp.m_closedQuantity)
-					}));
-					accounts.Add(account);
+					account.Positions = api.GetPositions(account);
 				}
 			}
 		}
