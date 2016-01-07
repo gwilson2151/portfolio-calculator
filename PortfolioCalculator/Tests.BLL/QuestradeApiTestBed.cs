@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
 
 using BLL;
+using BLL.Factories;
 
 using Contracts;
 
@@ -18,36 +15,28 @@ namespace Tests.BLL
 		[Test]
 		public void Test()
 		{
-			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
-
-			if (!Directory.Exists(dataDir))
+			var portfolio = new Portfolio
 			{
-				Console.Error.WriteLine("Data directory at {0} does not exist.", dataDir);
-				return;
-			}
-
-			var qapikeyFilePath = Path.Combine(dataDir, "qapikey");
-			if (!File.Exists(qapikeyFilePath))
+				Name = "Test Portfolio"
+			};
+			using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
 			{
-				Console.Error.WriteLine("qapikey file at {0} does not exist.", qapikeyFilePath);
-				return;
-			}
-
-			string qapikey;
-			using (var qapikeyReader = new StreamReader(qapikeyFilePath))
-			{
-				qapikey = qapikeyReader.ReadToEnd();
-			}
-
-			using (var api = new QuestradeService(qapikey))
-			{
+				var api = new QuestradeService(tokenManager, new InMemorySecurityRepository());
 				var accounts = api.GetAccounts();
 
 				foreach (var account in accounts)
 				{
 					account.Positions = api.GetPositions(account);
 				}
+
+				portfolio.Accounts = accounts;
 			}
+
+			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var reporter = new StringValueReporter(quoter);
+			var report = reporter.GetReport(portfolio);
+
+			Console.Out.Write(report);
 		}
 	}
 }

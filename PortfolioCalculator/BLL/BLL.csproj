@@ -38,6 +38,7 @@
       <HintPath>..\..\lib\QuestradeAPI.Net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -50,13 +51,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration.cs" />
     <Compile Include="Factories\QuoteServiceFactory.cs" />
+    <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\IPortfolioService.cs" />
+    <Compile Include="Interfaces\IQuestradeApiTokenManager.cs" />
     <Compile Include="Interfaces\IQuoteServiceFactory.cs" />
     <Compile Include="Interfaces\ISecurityQuoter.cs" />
+    <Compile Include="Interfaces\ISecurityRepository.cs" />
     <Compile Include="PortfolioService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuestradeApiTokenManager.cs" />
     <Compile Include="QuestradeService.cs" />
+    <Compile Include="InMemorySecurityRepository.cs" />
     <Compile Include="StringValueReporter.cs" />
     <Compile Include="StringWeightReporter.cs" />
     <Compile Include="YahooStockService.cs" />
