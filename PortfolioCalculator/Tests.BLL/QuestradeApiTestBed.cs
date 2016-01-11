@@ -22,14 +22,13 @@ namespace Tests.BLL
 			using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
 			{
 				var api = new QuestradeService(tokenManager, new InMemorySecurityRepository());
-				var accounts = api.GetAccounts();
+				portfolio.Accounts = api.GetAccounts();
 
-				foreach (var account in accounts)
+				foreach (var account in portfolio.Accounts)
 				{
 					account.Positions = api.GetPositions(account);
+					account.Transactions = api.GetTransactions(account, new DateTime(2008, 1, 1), DateTime.Now);
 				}
-
-				portfolio.Accounts = accounts;
 			}
 
 			var quoter = new YahooStockService(new QuoteServiceFactory());

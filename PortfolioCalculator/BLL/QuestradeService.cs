@@ -7,6 +7,7 @@ using BLL.Interfaces;
 using Contracts;
 
 using QuestradeAPI;
+using OrderSide = Questrade.BusinessObjects.Entities.OrderSide;
 
 namespace BLL
 {
@@ -36,6 +37,41 @@ namespace BLL
 				Security = _securityRepo.GetBySymbol(qp.m_symbol),
 				Shares = Convert.ToDecimal(qp.m_openQuantity)
 			}).ToList();
+		}
+
+		public List<Transaction> GetTransactions(Account account, DateTime startDate, DateTime endDate)
+		{
+			var response = GetExecutionsResponse.GetExecutions(_tokenManager.GetAuthToken(), account.Name, startDate, endDate);
+			return response.Executions.Select(qe => new Transaction
+			{
+				Account = account,
+				Date = qe.m_timestamp,
+				Price = Convert.ToDecimal(qe.m_price),
+				Security = _securityRepo.GetBySymbol(qe.m_symbol),
+				Shares = Convert.ToDecimal(qe.m_quantity),
+				Type = ConvertQuestradeSideToTransactionType(qe.m_side)
+			}).ToList();
+		}
+
+		private TransactionType ConvertQuestradeSideToTransactionType(OrderSide side)
+		{
+			switch (side)
+			{
+				case OrderSide.Buy:
+					return TransactionType.Buy;
+				case OrderSide.Sell:
+					return TransactionType.Sell;
+				case OrderSide.BTC:
+				case OrderSide.BTO:
+				case OrderSide.Count:
+				case OrderSide.Cov:
+				case OrderSide.Short:
+				case OrderSide.STC:
+				case OrderSide.STO:
+				case OrderSide.Undefined:
+				default:
+					throw new Exception(string.Format("Unsupported Questrade order type: {0}", side.ToString()));
+			}
 		}
 	}
 }
