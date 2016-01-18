@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -18,7 +17,10 @@ namespace PortfolioCalculator
 {
 	class Program
 	{
-		private const string FundbotPortfolioName = "b6cc9e27-77fb-4a75-a92f-992347ef3f08";
+		private const string QuestradePortfolioName = "Questrade_4f4cbfa2-5e74-4039-9dfb-834497f64a73";
+		private const string FundbotPortfolioName = "Fundbot_b6cc9e27-77fb-4a75-a92f-992347ef3f08";
+
+		private static readonly Configuration Configuration = new Configuration();
 
 		private enum ErrorCode
 		{
@@ -33,8 +35,18 @@ namespace PortfolioCalculator
 
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("help"))
 			{
-				Console.Write(@"report-fundbot - import buys.csv from fundbot and print a current value report");
+				Console.Write(@"questrade-value-report - get positions from Questrade API and print current value report. Make sure qapikey is populated with a valid refresh token from Questrade API page.
+	1. https://login.questrade.com//APIAccess/UserApps.aspx
+	2. Register a personal app if you haven't done so already.
+	3. Click 'generate new token' link and copy the token into the 'qapikey' file in the data directory.
+fundbot-value-report - import buys.csv from fundbot and print a current value report
+fundbot-weight-report - import buys.csv from fundbot and print a report of how the securities are weighted according to categories.csv");
 				return Exit(0);
+			}
+
+			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("questrade-value-report"))
+			{
+				return Exit(QuickQuestradeValueReportOperation(QuestradePortfolioName));
 			}
 
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("fundbot-value-report"))
@@ -50,9 +62,36 @@ namespace PortfolioCalculator
 			return Exit(DefaultOperation());
 		}
 
+		private static ErrorCode QuickQuestradeValueReportOperation(string portfolioName)
+		{
+			var portfolio = new Portfolio
+			{
+				Name = portfolioName
+			};
+			using (var tokenManager = new QuestradeApiTokenManager(Configuration))
+			{
+				var api = new QuestradeService(tokenManager, new InMemorySecurityRepository());
+				portfolio.Accounts = api.GetAccounts();
+
+				foreach (var account in portfolio.Accounts)
+				{
+					account.Positions = api.GetPositions(account);
+					account.Transactions = api.GetTransactions(account, new DateTime(2008, 1, 1), DateTime.Now);
+				}
+			}
+
+			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var reporter = new StringValueReporter(quoter);
+			var report = reporter.GetReport(portfolio);
+
+			Console.Write(report);
+
+			return ErrorCode.NoError;
+		}
+
 		private static ErrorCode QuickFundbotValueReportOperation(string portfolioName)
 		{
-			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
+			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Configuration.DataDirectoryPath));
 
 			if (!Directory.Exists(dataDir))
 			{
@@ -101,7 +140,7 @@ namespace PortfolioCalculator
 
 		private static ErrorCode QuickFundbotWeightReportOperation(string portfolioName)
 		{
-			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
+			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Configuration.DataDirectoryPath));
 
 			if (!Directory.Exists(dataDir))
 			{
@@ -162,7 +201,7 @@ namespace PortfolioCalculator
 
 		private static ErrorCode ImportFundbotOperation(string portfolioName)
 		{
-			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
+			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Configuration.DataDirectoryPath));
 
 			if (!Directory.Exists(dataDir))
 			{
@@ -219,7 +258,7 @@ namespace PortfolioCalculator
 
 		private static ErrorCode DefaultOperation()
 		{
-			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(ConfigurationManager.AppSettings["DataDirectoryLocation"]));
+			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Configuration.DataDirectoryPath));
 
 			if (!Directory.Exists(dataDir))
 			{
