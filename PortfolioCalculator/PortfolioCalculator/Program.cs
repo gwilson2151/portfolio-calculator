@@ -77,14 +77,13 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 				{
 					account.Positions = api.GetPositions(account);
 					account.Transactions = api.GetTransactions(account, new DateTime(2008, 1, 1), DateTime.Now);
-				}
+                }
+
+                var reporter = new StringValueReporter(api);
+                var report = reporter.GetReport(portfolio);
+
+                Console.Write(report);
 			}
-
-			var quoter = new YahooStockService(new QuoteServiceFactory());
-			var reporter = new StringValueReporter(quoter);
-			var report = reporter.GetReport(portfolio);
-
-			Console.Write(report);
 
 			return ErrorCode.NoError;
 		}

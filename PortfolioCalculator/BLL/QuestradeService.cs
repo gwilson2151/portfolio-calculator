@@ -8,10 +8,12 @@ using Contracts;
 
 using QuestradeAPI;
 using OrderSide = Questrade.BusinessObjects.Entities.OrderSide;
+using SymbolData = Questrade.BusinessObjects.Entities.SymbolData;
+using Level1DataItem = Questrade.BusinessObjects.Entities.Level1DataItem;
 
 namespace BLL
 {
-	public class QuestradeService
+    public class QuestradeService : ISecurityQuoter
 	{
 		private readonly IQuestradeApiTokenManager _tokenManager;
 		private readonly InMemorySecurityRepository _securityRepo;
@@ -52,6 +54,22 @@ namespace BLL
 				Type = ConvertQuestradeSideToTransactionType(qe.m_side)
 			}).ToList();
 		}
+
+	    public IDictionary<string, decimal> GetQuotes(IEnumerable<Security> securities)
+	    {
+	        var symbolData = GetSymbols(securities);
+	        var symbolIds = symbolData.Select(qsd => qsd.m_symbolId).ToList();
+
+	        var response = GetQuoteResponse.GetQuote(_tokenManager.GetAuthToken(), symbolIds);
+	        return response.Quotes.ToDictionary<Level1DataItem, string, decimal>(key => key.m_symbol, value => Convert.ToDecimal(value.m_lastTradePrice));
+	    }
+
+        private List<SymbolData> GetSymbols(IEnumerable<Security> securities)
+        {
+            var symbols = securities.Select(s => s.Symbol).ToList();
+            var response = GetSymbolsResponse.GetSymbols(_tokenManager.GetAuthToken(), new List<ulong>(), symbols);
+            return response.Symbols;
+        }
 
 		private TransactionType ConvertQuestradeSideToTransactionType(OrderSide side)
 		{
