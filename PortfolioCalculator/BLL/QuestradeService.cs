@@ -17,6 +17,7 @@ namespace BLL
 	{
 		private readonly IQuestradeApiTokenManager _tokenManager;
 		private readonly InMemorySecurityRepository _securityRepo;
+        private readonly IDictionary<string, SymbolData> _symbolCache = new Dictionary<string, SymbolData>();
 
 		public QuestradeService(IQuestradeApiTokenManager tokenManager, InMemorySecurityRepository securityRepository)
 		{
@@ -58,17 +59,24 @@ namespace BLL
 	    public IDictionary<string, decimal> GetQuotes(IEnumerable<Security> securities)
 	    {
 	        var symbolData = GetSymbols(securities);
-	        var symbolIds = symbolData.Select(qsd => qsd.m_symbolId).ToList();
+            var symbolIds = symbolData.Select<SymbolData, ulong>(qsd => qsd.m_symbolId).ToList();
 
 	        var response = GetQuoteResponse.GetQuote(_tokenManager.GetAuthToken(), symbolIds);
 	        return response.Quotes.ToDictionary<Level1DataItem, string, decimal>(key => key.m_symbol, value => Convert.ToDecimal(value.m_lastTradePrice));
 	    }
 
-        private List<SymbolData> GetSymbols(IEnumerable<Security> securities)
+        public IEnumerable<SymbolData> GetSymbols(IEnumerable<Security> securities)
         {
-            var symbols = securities.Select(s => s.Symbol).ToList();
-            var response = GetSymbolsResponse.GetSymbols(_tokenManager.GetAuthToken(), new List<ulong>(), symbols);
-            return response.Symbols;
+            var securitiesToFetch = securities.Where(s => !_symbolCache.ContainsKey(s.Symbol));
+
+            if (securitiesToFetch.Any())
+            {
+                var symbolNames = securitiesToFetch.Select(s => s.Symbol).ToList();
+                var response = GetSymbolsResponse.GetSymbols(_tokenManager.GetAuthToken(), new List<ulong>(), symbolNames);
+                response.Symbols.ForEach(s => _symbolCache[s.m_symbol.ToUpper()] = s);
+            }
+
+            return securities.Select<Security, SymbolData>(s => _symbolCache[s.Symbol]);
         }
 
 		private TransactionType ConvertQuestradeSideToTransactionType(OrderSide side)

@@ -38,22 +38,22 @@ namespace Tests.BLL
 			Console.Out.Write(report);
 		}
 
-        //[Test]
-        //public void SymbolTest()
-        //{
-        //    var symbols = new List<Security>
-        //    {
-        //        new Security {Symbol = "XCS.TO"},
-        //        new Security {Symbol = "XIU.TO"},
-        //        new Security {Symbol = "GOOG"},
-        //    };
-        //    using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
-        //    {
-        //        var api = new QuestradeService(tokenManager, new InMemorySecurityRepository());
+        [Test]
+        public void SymbolTest()
+        {
+            var symbols = new List<Security>
+            {
+                new Security {Symbol = "XCS.TO"},
+                new Security {Symbol = "XIU.TO"},
+                new Security {Symbol = "GOOG"},
+            };
+            using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
+            {
+                var api = new QuestradeService(tokenManager, new InMemorySecurityRepository());
 
-        //        var quotes = api.GetSymbols(symbols);
-        //    }
-        //}
+                var quotes = api.GetSymbols(symbols);
+            }
+        }
 
 	    [Test]
 	    public void QuoteTest()
