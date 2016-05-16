@@ -52,11 +52,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="Exceptions\CategoryNotFoundException.cs" />
+    <Compile Include="Exceptions\SecurityNotFoundException.cs" />
     <Compile Include="Factories\QuoteServiceFactory.cs" />
+    <Compile Include="InMemoryCategoryRepository.cs" />
+    <Compile Include="Interfaces\ICategoryRepository.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\IPortfolioService.cs" />
     <Compile Include="Interfaces\IQuestradeApiTokenManager.cs" />
     <Compile Include="Interfaces\IQuoteServiceFactory.cs" />
+    <Compile Include="Interfaces\ISecurityCategoriser.cs" />
     <Compile Include="Interfaces\ISecurityQuoter.cs" />
     <Compile Include="Interfaces\ISecurityRepository.cs" />
     <Compile Include="PortfolioService.cs" />

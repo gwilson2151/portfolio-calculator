@@ -70,7 +70,7 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			};
 			using (var tokenManager = new QuestradeApiTokenManager(Configuration))
 			{
-				var api = new QuestradeService(tokenManager, new InMemorySecurityRepository());
+				var api = new QuestradeService(tokenManager, new InMemorySecurityRepository(), new InMemoryCategoryRepository());
 				portfolio.Accounts = api.GetAccounts();
 
 				foreach (var account in portfolio.Accounts)
