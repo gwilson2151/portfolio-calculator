@@ -49,6 +49,11 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 				return Exit(QuickQuestradeValueReportOperation(QuestradePortfolioName));
 			}
 
+            if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("questrade-weight-report"))
+            {
+                return Exit(QuickQuestradeWeightReportOperation(QuestradePortfolioName));
+            }
+
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("fundbot-value-report"))
 			{
 				return Exit(QuickFundbotValueReportOperation(FundbotPortfolioName));
@@ -88,7 +93,41 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			return ErrorCode.NoError;
 		}
 
-		private static ErrorCode QuickFundbotValueReportOperation(string portfolioName)
+	    private static ErrorCode QuickQuestradeWeightReportOperation(string portfolioName)
+	    {
+            var portfolio = new Portfolio
+            {
+                Name = portfolioName
+            };
+            var categoryRepository = new InMemoryCategoryRepository();
+	        var securityCategory = categoryRepository.GetCategory("Security");
+	        var currencyCategory = categoryRepository.GetCategory("Currency");
+	        using (var tokenManager = new QuestradeApiTokenManager(Configuration))
+	        {
+                var api = new QuestradeService(tokenManager, new InMemorySecurityRepository(), categoryRepository);
+                portfolio.Accounts = api.GetAccounts();
+	            var weights = new List<CategoryWeight>();
+
+	            foreach (var account in portfolio.Accounts)
+	            {
+                    account.Positions = api.GetPositions(account);
+	                foreach (var position in account.Positions)
+	                {
+                        weights.AddRange(api.GetWeights(securityCategory, position.Security));
+                        weights.AddRange(api.GetWeights(currencyCategory, position.Security));
+	                }
+	            }
+
+                var reporter = new StringWeightReporter(api);
+	            var report = reporter.GetReport(portfolio, new[] {securityCategory, currencyCategory}, weights.Distinct());
+
+                Console.Write(report);
+	        }
+
+	        return ErrorCode.NoError;
+	    }
+
+        private static ErrorCode QuickFundbotValueReportOperation(string portfolioName)
 		{
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Configuration.DataDirectoryPath));
 

@@ -1,7 +1,9 @@
-﻿using Contracts.Interfaces;
+﻿using System.Diagnostics;
+using Contracts.Interfaces;
 
 namespace Contracts
 {
+    [DebuggerDisplay("Security={Security.Symbol} Shares={Shares}")]
 	public class Position : IDomainEntity
 	{
 		public long Id { get; set; }

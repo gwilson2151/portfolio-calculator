@@ -1,8 +1,10 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
 using Contracts.Interfaces;
 
 namespace Contracts
 {
+    [DebuggerDisplay("{Symbol}")]
 	public class Security : IDomainEntity
 	{
 	    private string _symbol;
