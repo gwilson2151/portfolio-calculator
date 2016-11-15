@@ -54,6 +54,11 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
                 return Exit(QuickQuestradeWeightReportOperation(QuestradePortfolioName));
             }
 
+			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("questrade-month-report"))
+			{
+				return Exit(QuestradeMonthReportOperation(QuestradePortfolioName));
+			}
+
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("fundbot-value-report"))
 			{
 				return Exit(QuickFundbotValueReportOperation(FundbotPortfolioName));
@@ -127,6 +132,32 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 	        return ErrorCode.NoError;
 	    }
 
+		private static ErrorCode QuestradeMonthReportOperation(string portfolioName)
+		{
+			var portfolio = new Portfolio
+			{
+				Name = portfolioName
+			};
+			using (var tokenManager = new QuestradeApiTokenManager(Configuration))
+			{
+				var api = new QuestradeService(tokenManager, new InMemorySecurityRepository(), new InMemoryCategoryRepository());
+				portfolio.Accounts = api.GetAccounts();
+
+				foreach (var account in portfolio.Accounts)
+				{
+					account.Positions = api.GetPositions(account);
+				}
+
+				var reporter = new StringValueReporter(api);
+				var report = reporter.GetReport(portfolio);
+
+				Console.Write(report);
+			}
+
+			throw new NotImplementedException();
+			return ErrorCode.NoError;
+		}
+
         private static ErrorCode QuickFundbotValueReportOperation(string portfolioName)
 		{
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Configuration.DataDirectoryPath));
@@ -167,7 +198,7 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			var portfolioService = new PortfolioService(portfolio);
 			portfolioService.UpdateWith(transactions);
 
-			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var quoter = new YahooStockService(new YahooServiceFactory());
 			var reporter = new StringValueReporter(quoter);
 			var report = reporter.GetReport(portfolio);
 
@@ -228,7 +259,7 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			IEnumerable<CategoryWeight> weights;
 			categoryReader.GetCategoriesAndWeights(out categories, out weights);
 
-			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var quoter = new YahooStockService(new YahooServiceFactory());
 			StringWeightReporter reporter = new StringWeightReporter(quoter);
 			var report = reporter.GetReport(portfolio, categories, weights);
 
@@ -278,7 +309,7 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			var portfolioService = new PortfolioService(portfolio);
 			portfolioService.UpdateWith(transactions);
 
-			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var quoter = new YahooStockService(new YahooServiceFactory());
 			var reporter = new StringValueReporter(quoter);
 			var report = reporter.GetReport(portfolio);
 
@@ -324,7 +355,7 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			var categoryFileContents = File.ReadAllText(categoriesFile, Encoding.UTF8);
 			var categories = JsonConvert.DeserializeObject<IEnumerable<Category>>(categoryFileContents);
 
-			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var quoter = new YahooStockService(new YahooServiceFactory());
 			var reporter = new StringValueReporter(quoter);
 			var report = reporter.GetReport(portfolio);
 

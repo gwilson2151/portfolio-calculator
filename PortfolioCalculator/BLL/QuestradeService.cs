@@ -81,7 +81,7 @@ namespace BLL
 	        return response.Quotes.ToDictionary<Level1DataItem, string, decimal>(key => key.m_symbol, value => Convert.ToDecimal(value.m_lastTradePrice));
 	    }
 
-        // this is going to get nuts...
+	    // this is going to get nuts...
         public IList<CategoryWeight> GetWeights(Category category, Security security)
         {
             // this exception block sucks. TODO - Replace with something sane.

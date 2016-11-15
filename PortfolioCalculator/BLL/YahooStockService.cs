@@ -6,7 +6,7 @@ using System.Linq;
 using BLL.Interfaces;
 
 using Contracts;
-
+using YSQ.core.Historical;
 using YSQ.core.Quotes;
 
 namespace BLL
@@ -14,10 +14,12 @@ namespace BLL
 	public class YahooStockService : ISecurityQuoter
 	{
 		private readonly IBuildQuotes _quoteBuilder;
+		private readonly IGetHistoricalPrices _priceFinder;
 
-		public YahooStockService(IQuoteServiceFactory quoteServiceFactory)
+		public YahooStockService(IYahooServiceFactory yahooServiceFactory)
 		{
-			_quoteBuilder = quoteServiceFactory.GetYahooStockQuotesService();
+			_quoteBuilder = yahooServiceFactory.GetQuotesService();
+			_priceFinder = yahooServiceFactory.GetHistoricalPricesService();
 		}
 
 		public IDictionary<string, decimal> GetQuotes(IEnumerable<Security> securities)
