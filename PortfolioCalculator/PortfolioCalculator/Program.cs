@@ -148,17 +148,26 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 					account.Positions = api.GetPositions(account);
 				}
 
-				var reporter = new StringValueReporter(api);
-				var report = reporter.GetReport(portfolio);
+				var service = new YahooStockService(new YahooServiceFactory());
+				var reporter = new StringHistoricalReporter(service);
+				//var startDate = GetStartOfMarketWeek(DateTime.Now);
+				var startDate = DateTime.Now;
+				var report = reporter.GetReport(portfolio, startDate.AddMonths(-1), startDate, Period.Daily);
 
 				Console.Write(report);
 			}
 
-			throw new NotImplementedException();
 			return ErrorCode.NoError;
 		}
 
-        private static ErrorCode QuickFundbotValueReportOperation(string portfolioName)
+		private static DateTime GetStartOfMarketWeek(DateTime now)
+		{
+			if (now.DayOfWeek == DayOfWeek.Sunday)
+				return now.AddDays(-6);
+			return now.AddDays(-((int) now.DayOfWeek - 1));
+		}
+
+		private static ErrorCode QuickFundbotValueReportOperation(string portfolioName)
 		{
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Configuration.DataDirectoryPath));
 
