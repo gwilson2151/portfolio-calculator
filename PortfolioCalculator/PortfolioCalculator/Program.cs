@@ -150,9 +150,8 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 
 				var service = new YahooStockService(new YahooServiceFactory());
 				var reporter = new StringHistoricalReporter(service);
-				//var startDate = GetStartOfMarketWeek(DateTime.Now);
-				var startDate = DateTime.Now;
-				var report = reporter.GetReport(portfolio, startDate.AddMonths(-1), startDate, Period.Daily);
+				var startDate = GetStartOfMarketWeek(DateTime.Now);
+				var report = reporter.GetReport(portfolio, startDate.AddMonths(-1), startDate, Period.Weekly);
 
 				Console.Write(report);
 			}
