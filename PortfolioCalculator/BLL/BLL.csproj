@@ -70,7 +70,6 @@
     <Compile Include="QuestradeApiTokenManager.cs" />
     <Compile Include="QuestradeService.cs" />
     <Compile Include="InMemorySecurityRepository.cs" />
-    <Compile Include="StringHistoricalPriceReporter.cs" />
     <Compile Include="StringHistoricalReporter.cs" />
     <Compile Include="StringValueReporter.cs" />
     <Compile Include="StringWeightReporter.cs" />
