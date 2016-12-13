@@ -19,16 +19,16 @@ namespace Tests.BLL
 	{
 		private Mock<IBuildQuotes> _ysqMock;
 		private Mock<IFindQuotes> _ysqfMock;
-		private Mock<IQuoteServiceFactory> _qsfMock;
+		private Mock<IYahooServiceFactory> _qsfMock;
 
 		[SetUp]
 		public void SetUp()
 		{
 			_ysqMock = new Mock<IBuildQuotes>();
 			_ysqfMock = new Mock<IFindQuotes>();
-			_qsfMock = new Mock<IQuoteServiceFactory>();
+			_qsfMock = new Mock<IYahooServiceFactory>();
 
-			_qsfMock.Setup(m => m.GetYahooStockQuotesService()).Returns(_ysqMock.Object);
+			_qsfMock.Setup(m => m.GetQuotesService()).Returns(_ysqMock.Object);
 		}
 
 		[Test]

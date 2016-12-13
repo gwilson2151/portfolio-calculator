@@ -54,6 +54,11 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
                 return Exit(QuickQuestradeWeightReportOperation(QuestradePortfolioName));
             }
 
+			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("questrade-month-report"))
+			{
+				return Exit(QuestradeMonthReportOperation(QuestradePortfolioName));
+			}
+
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("fundbot-value-report"))
 			{
 				return Exit(QuickFundbotValueReportOperation(FundbotPortfolioName));
@@ -127,7 +132,41 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 	        return ErrorCode.NoError;
 	    }
 
-        private static ErrorCode QuickFundbotValueReportOperation(string portfolioName)
+		private static ErrorCode QuestradeMonthReportOperation(string portfolioName)
+		{
+			var portfolio = new Portfolio
+			{
+				Name = portfolioName
+			};
+			using (var tokenManager = new QuestradeApiTokenManager(Configuration))
+			{
+				var api = new QuestradeService(tokenManager, new InMemorySecurityRepository(), new InMemoryCategoryRepository());
+				portfolio.Accounts = api.GetAccounts();
+
+				foreach (var account in portfolio.Accounts)
+				{
+					account.Positions = api.GetPositions(account);
+				}
+
+				var service = new YahooStockService(new YahooServiceFactory());
+				var reporter = new StringHistoricalReporter(service);
+				var startDate = GetStartOfMarketWeek(DateTime.Now);
+				var report = reporter.GetReport(portfolio, startDate.AddMonths(-1), startDate, Period.Weekly);
+
+				Console.Write(report);
+			}
+
+			return ErrorCode.NoError;
+		}
+
+		private static DateTime GetStartOfMarketWeek(DateTime now)
+		{
+			if (now.DayOfWeek == DayOfWeek.Sunday)
+				return now.AddDays(-6);
+			return now.AddDays(-((int) now.DayOfWeek - 1));
+		}
+
+		private static ErrorCode QuickFundbotValueReportOperation(string portfolioName)
 		{
 			var dataDir = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Configuration.DataDirectoryPath));
 
@@ -167,7 +206,7 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			var portfolioService = new PortfolioService(portfolio);
 			portfolioService.UpdateWith(transactions);
 
-			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var quoter = new YahooStockService(new YahooServiceFactory());
 			var reporter = new StringValueReporter(quoter);
 			var report = reporter.GetReport(portfolio);
 
@@ -228,7 +267,7 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			IEnumerable<CategoryWeight> weights;
 			categoryReader.GetCategoriesAndWeights(out categories, out weights);
 
-			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var quoter = new YahooStockService(new YahooServiceFactory());
 			StringWeightReporter reporter = new StringWeightReporter(quoter);
 			var report = reporter.GetReport(portfolio, categories, weights);
 
@@ -278,7 +317,7 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			var portfolioService = new PortfolioService(portfolio);
 			portfolioService.UpdateWith(transactions);
 
-			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var quoter = new YahooStockService(new YahooServiceFactory());
 			var reporter = new StringValueReporter(quoter);
 			var report = reporter.GetReport(portfolio);
 
@@ -324,7 +363,7 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			var categoryFileContents = File.ReadAllText(categoriesFile, Encoding.UTF8);
 			var categories = JsonConvert.DeserializeObject<IEnumerable<Category>>(categoryFileContents);
 
-			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var quoter = new YahooStockService(new YahooServiceFactory());
 			var reporter = new StringValueReporter(quoter);
 			var report = reporter.GetReport(portfolio);
 

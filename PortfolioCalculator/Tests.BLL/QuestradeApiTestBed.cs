@@ -31,7 +31,7 @@ namespace Tests.BLL
 				}
 			}
 
-			var quoter = new YahooStockService(new QuoteServiceFactory());
+			var quoter = new YahooStockService(new YahooServiceFactory());
 			var reporter = new StringValueReporter(quoter);
 			var report = reporter.GetReport(portfolio);
 

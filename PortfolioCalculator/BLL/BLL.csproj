@@ -54,14 +54,15 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="Exceptions\CategoryNotFoundException.cs" />
     <Compile Include="Exceptions\SecurityNotFoundException.cs" />
-    <Compile Include="Factories\QuoteServiceFactory.cs" />
+    <Compile Include="Factories\YahooServiceFactory.cs" />
     <Compile Include="InMemoryCategoryRepository.cs" />
     <Compile Include="Interfaces\ICategoryRepository.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\IPortfolioService.cs" />
     <Compile Include="Interfaces\IQuestradeApiTokenManager.cs" />
-    <Compile Include="Interfaces\IQuoteServiceFactory.cs" />
+    <Compile Include="Interfaces\IYahooServiceFactory.cs" />
     <Compile Include="Interfaces\ISecurityCategoriser.cs" />
+    <Compile Include="Interfaces\ISecurityHistoricalPricer.cs" />
     <Compile Include="Interfaces\ISecurityQuoter.cs" />
     <Compile Include="Interfaces\ISecurityRepository.cs" />
     <Compile Include="PortfolioService.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="QuestradeApiTokenManager.cs" />
     <Compile Include="QuestradeService.cs" />
     <Compile Include="InMemorySecurityRepository.cs" />
+    <Compile Include="StringHistoricalReporter.cs" />
     <Compile Include="StringValueReporter.cs" />
     <Compile Include="StringWeightReporter.cs" />
     <Compile Include="YahooStockService.cs" />
