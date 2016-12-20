@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SQLiteDAL")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Vision Critical")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SQLiteDAL")]
-[assembly: AssemblyCopyright("Copyright © Vision Critical 2015")]
+[assembly: AssemblyCopyright("Copyright © Gavin Wilson 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
