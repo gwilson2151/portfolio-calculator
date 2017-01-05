@@ -10,7 +10,7 @@ namespace BLL
     public class InMemoryCategoryRepository : ICategoryRepository
     {
         private readonly Dictionary<string, Category> _categoryCache = new Dictionary<string, Category>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly Dictionary<Security, List<CategoryWeight>> _securityCache = new Dictionary<Security, List<CategoryWeight>>();
+        private readonly Dictionary<Security, List<CategoryWeight>> _weightCache = new Dictionary<Security, List<CategoryWeight>>();
 
         public Category GetCategory(string name)
         {
@@ -44,25 +44,23 @@ namespace BLL
         public IEnumerable<CategoryWeight> GetWeights(Category category, Security security)
         {
             if (!_categoryCache.ContainsKey(category.Name))
-                throw new CategoryNotFoundException(string.Format("Category '{0}' not found.", category.Name));
+				return new List<CategoryWeight>();
 
-            if (!_securityCache.ContainsKey(security))
-                throw new SecurityNotFoundException(string.Format("Security '{0}' not found.", security.Symbol));
+	        if (!_weightCache.ContainsKey(security))
+		        return new List<CategoryWeight>();
 
-            return _securityCache[security].Where(cw => category.Values.Contains(cw.Value));
+            return _weightCache[security].Where(cw => category.Values.Contains(cw.Value));
         }
 
         public void AddWeights(Category category, Security security, IEnumerable<CategoryWeight> weights)
         {
-            if (!_categoryCache.ContainsKey(category.Name))
-                throw new CategoryNotFoundException(string.Format("Category '{0}' not found.", category.Name));
+	        if (!_categoryCache.ContainsKey(category.Name))
+		        _categoryCache.Add(category.Name, category);
 
-            if (!_securityCache.ContainsKey(security))
-            {
-                _securityCache.Add(security, new List<CategoryWeight>());
-            }
+            if (!_weightCache.ContainsKey(security))
+                _weightCache.Add(security, new List<CategoryWeight>());
 
-            _securityCache[security].AddRange(weights.Except(_securityCache[security]));
+            _weightCache[security].AddRange(weights.Except(_weightCache[security]));
         }
     }
 }

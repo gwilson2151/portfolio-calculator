@@ -12,5 +12,19 @@ namespace Tests.MorningstarScraper
 			var scraper = new Scraper();
 			var blah = scraper.GetAssetAllocation("XCS");
 		}
+
+		[Test]
+		public void SameSymbolDifferentExchange()
+		{
+			var scraper = new Scraper();
+			var blah = scraper.GetAssetAllocation("IAU");
+		}
+
+		[Test]
+		public void NoAssetAllocation()
+		{
+			var scraper = new Scraper();
+			var blah = scraper.GetAssetAllocation("GOOG");
+		}
 	}
 }

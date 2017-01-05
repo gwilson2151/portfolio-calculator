@@ -4,7 +4,7 @@ using AngleSharp;
 
 namespace MorningstarScraper
 {
-	public class Scraper
+	public class Scraper : IScraper
 	{
 		private const string AssetAllocationUrl = "http://portfolios.morningstar.com/fund/summary?t={0}";
 
@@ -27,11 +27,19 @@ namespace MorningstarScraper
 				decimal value;
 				var success = decimal.TryParse(assetAllocation, out value);
 				if (!success)
-					Console.WriteLine("MorningstarScraper - [{0}] wouldn't parse to decimal.", assetAllocation);
-				results.Add(assetLabel, value);
+					Console.WriteLine("MorningstarScraper - {1} - [{0}] wouldn't parse to decimal.", assetAllocation, ticker);
+				if (value > 0M)
+					results.Add(assetLabel, value);
 			}
 
+			DebugPrint(ticker, results);
+
 			return results;
+		}
+
+		private void DebugPrint(string ticker, Dictionary<string, decimal> results)
+		{
+			Console.WriteLine("{0}: {1}", ticker, string.Join(", ", results));
 		}
 	}
 }

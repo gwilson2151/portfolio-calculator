@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="Exceptions\CategoryNotFoundException.cs" />
+    <Compile Include="Exceptions\CategoryNotSupportedException.cs" />
     <Compile Include="Exceptions\SecurityNotFoundException.cs" />
     <Compile Include="Factories\YahooServiceFactory.cs" />
     <Compile Include="InMemoryCategoryRepository.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Interfaces\ISecurityHistoricalPricer.cs" />
     <Compile Include="Interfaces\ISecurityQuoter.cs" />
     <Compile Include="Interfaces\ISecurityRepository.cs" />
+    <Compile Include="MorningstarService.cs" />
     <Compile Include="PortfolioService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuestradeApiTokenManager.cs" />
@@ -79,6 +81,10 @@
     <ProjectReference Include="..\Contracts\Contracts.csproj">
       <Project>{e2a63c4c-f1d9-4d56-a283-c751ae1a2c75}</Project>
       <Name>Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MorningstarScraper\MorningstarScraper.csproj">
+      <Project>{b72fd43c-313d-4dba-aa37-68a681c72bc5}</Project>
+      <Name>MorningstarScraper</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

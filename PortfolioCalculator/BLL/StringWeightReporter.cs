@@ -33,11 +33,15 @@ namespace BLL
 
 				foreach (var kvpair in valuesDict)
 				{
-					var weight = weightsList.Single(w => w.Security.Symbol.Equals(kvpair.Key) && w.Value.Category == category);
-					if (calculations.ContainsKey(weight.Value.Name))
-						calculations[weight.Value.Name] += kvpair.Value;
-					else
-						calculations.Add(weight.Value.Name, kvpair.Value);
+					var categoryWeights = weightsList.Where(w => w.Security.Symbol.Equals(kvpair.Key) && w.Value.Category == category);
+					foreach (var categoryWeight in categoryWeights)
+					{
+						var ratio = kvpair.Value * (categoryWeight.Weight / 100M);
+						if (calculations.ContainsKey(categoryWeight.Value.Name))
+							calculations[categoryWeight.Value.Name] += ratio;
+						else
+							calculations.Add(categoryWeight.Value.Name, ratio);
+					}
 				}
 
 				reportBuilder.AppendLine(string.Format("\r\n{0}", category.Name));

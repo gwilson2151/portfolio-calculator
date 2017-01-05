@@ -40,7 +40,7 @@ namespace BLL
 			return response.Positions.Select(qp => new Position
 			{
 				Account = account,
-				Security = _securityRepo.GetBySymbol(qp.m_symbol),
+				Security = _securityRepo.GetBySymbol(qp.m_symbol), // TODO: Enrich this with exchange
 				Shares = Convert.ToDecimal(qp.m_openQuantity)
 			}).ToList();
 		}
@@ -84,18 +84,10 @@ namespace BLL
 	    // this is going to get nuts...
         public IList<CategoryWeight> GetWeights(Category category, Security security)
         {
-            // this exception block sucks. TODO - Replace with something sane.
-            try
-            {
-                var weights = _categoryRepository.GetWeights(category, security).ToList();
-                if (!weights.Any(w => w.Value.Category == category))
-                    return GetWeightDataFromQuestrade(category, security);
-                return weights.Where(w => w.Value.Category == category).ToList();
-            }
-            catch (SecurityNotFoundException)
-            {
-                return GetWeightDataFromQuestrade(category, security);
-            }
+            var weights = _categoryRepository.GetWeights(category, security).ToList();
+            if (weights.Any(w => w.Value.Category == category))
+				return weights.Where(w => w.Value.Category == category).ToList();
+            return GetWeightDataFromQuestrade(category, security);
         }
 
         private IList<CategoryWeight> GetWeightDataFromQuestrade(Category category, Security security)
@@ -139,7 +131,7 @@ namespace BLL
             }
             else
             {
-                throw new Exception(string.Format("Category not supported: {0}", category.Name));
+				throw new CategoryNotSupportedException(string.Format("Category not supported: {0}", category.Name));
             }
 
             if (!list.Any())
