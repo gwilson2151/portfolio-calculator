@@ -19,13 +19,26 @@ namespace BLL
 		private readonly IQuestradeApiTokenManager _tokenManager;
         private readonly ISecurityRepository _securityRepo;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IDictionary<string, SymbolData> _symbolCache = new Dictionary<string, SymbolData>();
+        private readonly IDictionary<string, SymbolData> _symbolCacheByName = new Dictionary<string, SymbolData>();
+		private readonly IDictionary<ulong, SymbolData> _symbolCacheById = new Dictionary<ulong, SymbolData>();
+
+		private readonly IDictionary<string, string> _exchangeMapping;
 
         public QuestradeService(IQuestradeApiTokenManager tokenManager, ISecurityRepository securityRepository, ICategoryRepository categoryRepository)
 		{
 			_tokenManager = tokenManager;
 			_securityRepo = securityRepository;
             _categoryRepository = categoryRepository;
+
+			_exchangeMapping = InitializeExchangeMapping();
+		}
+
+		private static IDictionary<string, string> InitializeExchangeMapping()
+		{
+			return new Dictionary<string, string>
+			{
+				{ "TSX", "TO"}
+			};
 		}
 
 		public List<Account> GetAccounts()
@@ -37,10 +50,13 @@ namespace BLL
 		public List<Position> GetPositions(Account account)
 		{
 			var response = GetPositionsResponse.GetPositions(_tokenManager.GetAuthToken(), account.Name);
+			var symbolIds = response.Positions.Select(p => p.m_symbolId);
+			var symbolData = GetSymbolsById(symbolIds).ToDictionary<SymbolData, ulong>(s => s.m_symbolId);
+
 			return response.Positions.Select(qp => new Position
 			{
 				Account = account,
-				Security = _securityRepo.GetBySymbol(qp.m_symbol), // TODO: Enrich this with exchange
+				Security = _securityRepo.GetOrCreate(symbolData[qp.m_symbolId].m_listingExchange, StripExchangeFromSymbol(qp.m_symbol)),
 				Shares = Convert.ToDecimal(qp.m_openQuantity)
 			}).ToList();
 		}
@@ -48,12 +64,15 @@ namespace BLL
 		public List<Transaction> GetTransactions(Account account, DateTime startDate, DateTime endDate)
 		{
 			var response = GetExecutionsResponse.GetExecutions(_tokenManager.GetAuthToken(), account.Name, startDate, endDate);
+			var symbolIds = response.Executions.Select(p => p.m_symbolId);
+			var symbolData = GetSymbolsById(symbolIds).ToDictionary<SymbolData, ulong>(s => s.m_symbolId);
+
 			return response.Executions.Select(qe => new Transaction
 			{
 				Account = account,
 				Date = qe.m_timestamp,
 				Price = Convert.ToDecimal(qe.m_price),
-				Security = _securityRepo.GetBySymbol(qe.m_symbol),
+				Security = _securityRepo.GetOrCreate(symbolData[qe.m_symbolId].m_listingExchange, StripExchangeFromSymbol(qe.m_symbol)),
 				Shares = Convert.ToDecimal(qe.m_quantity),
 				Type = ConvertQuestradeSideToTransactionType(qe.m_side)
 			}).ToList();
@@ -61,24 +80,26 @@ namespace BLL
 
         public IEnumerable<SymbolData> GetSymbols(IEnumerable<Security> securities)
         {
-            if (securities.Any(s => !_symbolCache.ContainsKey(s.Symbol)))
+			var notFound = securities.Where(s => !_symbolCacheByName.ContainsKey(BuildSymbolFromSecurity(s))).Select(BuildSymbolFromSecurity).ToList();
+            if (notFound.Any())
             {
-                var symbolNames = securities.Where(s => !_symbolCache.ContainsKey(s.Symbol)).Select(s => s.Symbol).ToList();
-                var response = GetSymbolsResponse.GetSymbols(_tokenManager.GetAuthToken(), new List<ulong>(), symbolNames);
-                response.Symbols.ForEach(s => _symbolCache[s.m_symbol.ToUpper()] = s);
+				var response = GetSymbolsResponse.GetSymbols(_tokenManager.GetAuthToken(), new List<ulong>(), notFound);
+                //response.Symbols.ForEach(s => _symbolCacheByName[s.m_symbol.ToUpper()] = s);
+				AddToCache(response.Symbols);
             }
 
-            return securities.Select<Security, SymbolData>(s => _symbolCache[s.Symbol]);
+			return securities.Select<Security, SymbolData>(s => _symbolCacheByName[BuildSymbolFromSecurity(s)]);
         }
 
         // Interface Implementations
-	    public IDictionary<string, decimal> GetQuotes(IEnumerable<Security> securities)
+		public IDictionary<Security, decimal> GetQuotes(IEnumerable<Security> securities)
 	    {
 	        var symbolData = GetSymbols(securities);
             var symbolIds = symbolData.Select<SymbolData, ulong>(qsd => qsd.m_symbolId).ToList();
+			var securityMap = securities.ToDictionary(BuildSymbolFromSecurity);
 
 	        var response = GetQuoteResponse.GetQuote(_tokenManager.GetAuthToken(), symbolIds);
-	        return response.Quotes.ToDictionary<Level1DataItem, string, decimal>(key => key.m_symbol, value => Convert.ToDecimal(value.m_lastTradePrice));
+			return response.Quotes.ToDictionary<Level1DataItem, Security, decimal>(key => securityMap[key.m_symbol], value => Convert.ToDecimal(value.m_lastTradePrice));
 	    }
 
 	    // this is going to get nuts...
@@ -142,6 +163,38 @@ namespace BLL
         }
 
         // End Interface Implementations
+
+
+		private IEnumerable<SymbolData> GetSymbolsById(IEnumerable<ulong> symbolIds)
+		{
+			var notFound = symbolIds.Where(s => !_symbolCacheById.ContainsKey(s)).ToList();
+			if (notFound.Any())
+			{
+				var response = GetSymbolsResponse.GetSymbols(_tokenManager.GetAuthToken(), notFound, new List<string>());
+				AddToCache(response.Symbols);
+			}
+			return symbolIds.Select<ulong, SymbolData>(id => _symbolCacheById[id]);
+		}
+
+	    private void AddToCache(IEnumerable<SymbolData> symbolData)
+	    {
+			//symbolData.ForEach(s => _symbolCacheByName[s.m_symbol.ToUpper()] = s);
+		    foreach (var data in symbolData)
+		    {
+			    _symbolCacheByName[data.m_symbol.ToUpper()] = data;
+			    _symbolCacheById[data.m_symbolId] = data;
+		    }
+	    }
+
+	    private string BuildSymbolFromSecurity(Security security)
+	    {
+		    return string.Format("{0}.{1}", security.Symbol, _exchangeMapping[security.Exchange]);
+	    }
+
+	    private string StripExchangeFromSymbol(string symbol)
+	    {
+		    return symbol.Split('.')[0];
+	    }
 
 		private TransactionType ConvertQuestradeSideToTransactionType(OrderSide side)
 		{

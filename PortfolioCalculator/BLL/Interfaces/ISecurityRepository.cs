@@ -4,6 +4,7 @@ namespace BLL.Interfaces
 {
 	public interface ISecurityRepository
 	{
-		Security GetBySymbol(string symbol);
+		Security Add(Security security);
+		Security GetOrCreate(string exchange, string symbol);
 	}
 }

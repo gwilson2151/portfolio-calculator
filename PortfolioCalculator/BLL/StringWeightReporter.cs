@@ -78,7 +78,7 @@ namespace BLL
 			reportBuilder.AppendLine(string.Format("Total = {0:C}{1}", total, Environment.NewLine));
 		}
 
-		private IDictionary<string, decimal> GetQuotes(Portfolio portfolio)
+		private IDictionary<Security, decimal> GetQuotes(Portfolio portfolio)
 		{
 			var securities = new List<Security>();
 			foreach (var account in portfolio.Accounts)
@@ -88,7 +88,7 @@ namespace BLL
 			return _quoter.GetQuotes(securities.Distinct());
 		}
 
-		private static IDictionary<string, decimal> CalculateValues(Portfolio portfolio, IDictionary<string, decimal> quotes)
+		private static IDictionary<string, decimal> CalculateValues(Portfolio portfolio, IDictionary<Security, decimal> quotes)
 		{
 			var results = new Dictionary<string, decimal>();
 
@@ -98,7 +98,7 @@ namespace BLL
 				{
 					try
 					{
-						var price = quotes[position.Security.Symbol];
+						var price = quotes[position.Security];
 						var value = price * position.Shares;
 						if (results.ContainsKey(position.Security.Symbol))
 							results[position.Security.Symbol] += value;

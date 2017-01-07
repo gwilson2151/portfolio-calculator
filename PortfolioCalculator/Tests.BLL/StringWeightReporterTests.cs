@@ -27,13 +27,13 @@ namespace Tests.BLL
 			var categories = TestDataGenerator.GenerateFundbotCategories().ToList();
 			var weights = TestDataGenerator.GenerateFundbotWeights(categories).ToList();
 
-			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<string, decimal>
+			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<Security, decimal>
 			{
-				{"XFN.TO", 29.97M},
-				{"AGG", 1000.69M},
-				{"XIU.TO", 21.1M},
-				{"CPD.TO", 16.55M},
-				{"EFA", 68.24M},
+				{new Security { Symbol = "XFN.TO"}, 29.97M},
+				{new Security { Symbol = "AGG"}, 1000.69M},
+				{new Security { Symbol = "XIU.TO"}, 21.1M},
+				{new Security { Symbol = "CPD.TO"}, 16.55M},
+				{new Security { Symbol = "EFA"}, 68.24M},
 			});
 
 			// execute

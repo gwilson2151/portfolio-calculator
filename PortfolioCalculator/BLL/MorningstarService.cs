@@ -15,11 +15,23 @@ namespace BLL
 		private readonly ISecurityRepository _securityRepository;
 		private readonly ICategoryRepository _categoryRepository;
 
+		private readonly IDictionary<string, string> _exchangeMapping;
+
 		public MorningstarService(IScraper scraper, ISecurityRepository securityRepository, ICategoryRepository categoryRepository)
 		{
 			_scraper = scraper;
 			_securityRepository = securityRepository;
 			_categoryRepository = categoryRepository;
+
+			_exchangeMapping = InitializeExchangeMapping();
+		}
+
+		private static IDictionary<string, string> InitializeExchangeMapping()
+		{
+			return new Dictionary<string, string>
+			{
+				{ "TSX", "XTSE"}
+			};
 		}
 
 		public IList<CategoryWeight> GetWeights(Category category, Security security)
@@ -35,7 +47,7 @@ namespace BLL
 		{
 			if (category.Name.Equals("assetallocation", StringComparison.InvariantCultureIgnoreCase))
 			{
-				var assetAllocation = _scraper.GetAssetAllocation(TranslateSymbol(security.Symbol));
+				var assetAllocation = _scraper.GetAssetAllocation(TranslateSymbol(security));
 				var values = _categoryRepository.GetValues(category).ToList();
 				var list = new List<CategoryWeight>();
 
@@ -71,9 +83,9 @@ namespace BLL
 			throw new CategoryNotSupportedException(string.Format("Category not supported: {0}", category.Name));
 		}
 
-		private static string TranslateSymbol(string symbol)
+		private string TranslateSymbol(Security security)
 		{
-			return symbol.Split('.')[0];
+			return string.Format("{0}:{1}", _exchangeMapping[security.Exchange], security.Symbol);
 		}
 	}
 }

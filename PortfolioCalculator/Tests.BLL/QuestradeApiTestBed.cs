@@ -43,9 +43,9 @@ namespace Tests.BLL
         {
             var symbols = new List<Security>
             {
-                new Security {Symbol = "XCS.TO"},
-                new Security {Symbol = "XIU.TO"},
-                new Security {Symbol = "GOOG"},
+                new Security {Exchange = "TSX", Symbol = "XCS"},
+                new Security {Exchange = "TSX", Symbol = "XIU"},
+                new Security {Exchange = "NASDAQ", Symbol = "GOOG"},
             };
             using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
             {
@@ -60,9 +60,9 @@ namespace Tests.BLL
 	    {
             var symbols = new List<Security>
                 {
-                    new Security {Symbol = "XCS.TO"},
-                    new Security {Symbol = "XIU.TO"},
-                    new Security {Symbol = "GOOG"},
+                    new Security {Exchange = "TSX", Symbol = "XCS"},
+                    new Security {Exchange = "TSX", Symbol = "XIU"},
+                    new Security {Exchange = "NASDAQ", Symbol = "GOOG"},
                 };
             using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
             {
@@ -79,8 +79,8 @@ namespace Tests.BLL
 	        var category = categoryRepository.GetCategory("Security");
 	        var category2 = categoryRepository.GetCategory("Currency");
             var securityRepository = new InMemorySecurityRepository();
-	        var security = securityRepository.GetBySymbol("XSB.TO");
-	        var security2 = securityRepository.GetBySymbol("MSFT");
+	        var security = securityRepository.GetOrCreate("TSX", "XSB");
+			var security2 = securityRepository.GetOrCreate("NASDAQ", "MSFT");
 
             using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
             {

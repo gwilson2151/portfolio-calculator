@@ -35,14 +35,14 @@ namespace BLL
 					if (value < 0M)
 						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Shares, "quote not found", "unknown"));
 					else
-						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Shares, quotes[position.Security.Symbol], value));
+						reportBuilder.AppendLine(string.Format("{0}: {1} x {2} = {3}", position.Security.Symbol, position.Shares, quotes[position.Security], value));
 				}
 			}
 
 			return reportBuilder.ToString();
 		}
 
-		private IDictionary<string, decimal> GetQuotes(Portfolio portfolio)
+		private IDictionary<Security, decimal> GetQuotes(Portfolio portfolio)
 		{
 			var securities = new List<Security>();
 			foreach (var account in portfolio.Accounts)
@@ -52,7 +52,7 @@ namespace BLL
 			return _quoter.GetQuotes(securities.Distinct());
 		}
 
-		private static IDictionary<IDomainEntity, decimal> CalculateValues(Portfolio portfolio, IDictionary<string, decimal> quotes)
+		private static IDictionary<IDomainEntity, decimal> CalculateValues(Portfolio portfolio, IDictionary<Security, decimal> quotes)
 		{
 			var results = new Dictionary<IDomainEntity, decimal>();
 
@@ -62,7 +62,7 @@ namespace BLL
 				{
 					try
 					{
-						var price = quotes[position.Security.Symbol];
+						var price = quotes[position.Security];
 						var value = price * position.Shares;
 						results.Add(position, value);
 					}
