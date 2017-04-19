@@ -50,10 +50,10 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 				return Exit(QuickQuestradeValueReportOperation(QuestradePortfolioName));
 			}
 
-            if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("weight-report"))
-            {
-                return Exit(QuickQuestradeWeightReportOperation(QuestradePortfolioName));
-            }
+			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("weight-report"))
+			{
+				return Exit(QuickQuestradeWeightReportOperation(QuestradePortfolioName));
+			}
 
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("questrade-month-report"))
 			{
@@ -88,54 +88,54 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 				{
 					account.Positions = api.GetPositions(account);
 					account.Transactions = api.GetTransactions(account, new DateTime(2008, 1, 1), DateTime.Now);
-                }
+				}
 
-                var reporter = new StringValueReporter(api);
-                var report = reporter.GetReport(portfolio);
+				var reporter = new StringValueReporter(api);
+				var report = reporter.GetReport(portfolio);
 
-                Console.Write(report);
+				Console.Write(report);
 			}
 
 			return ErrorCode.NoError;
 		}
 
-	    private static ErrorCode QuickQuestradeWeightReportOperation(string portfolioName)
-	    {
-            var portfolio = new Portfolio
-            {
-                Name = portfolioName
-            };
-            var categoryRepository = new InMemoryCategoryRepository();
+		private static ErrorCode QuickQuestradeWeightReportOperation(string portfolioName)
+		{
+			var portfolio = new Portfolio
+			{
+				Name = portfolioName
+			};
+			var categoryRepository = new InMemoryCategoryRepository();
 			var securityRepo = new InMemorySecurityRepository();
-	        var securityCategory = categoryRepository.GetCategory("Security");
-	        var currencyCategory = categoryRepository.GetCategory("Currency");
-		    var assetAllocationCategory = categoryRepository.GetCategory("AssetAllocation");
-	        using (var tokenManager = new QuestradeApiTokenManager(Configuration))
-	        {
+			var securityCategory = categoryRepository.GetCategory("Security");
+			var currencyCategory = categoryRepository.GetCategory("Currency");
+			var assetAllocationCategory = categoryRepository.GetCategory("AssetAllocation");
+			using (var tokenManager = new QuestradeApiTokenManager(Configuration))
+			{
 				var api = new QuestradeService(tokenManager, securityRepo, categoryRepository);
-                portfolio.Accounts = api.GetAccounts();
+				portfolio.Accounts = api.GetAccounts();
 				var morningstar = new MorningstarService(new Scraper(), securityRepo, categoryRepository);
-	            var weights = new List<CategoryWeight>();
+				var weights = new List<CategoryWeight>();
 
-	            foreach (var account in portfolio.Accounts)
-	            {
-                    account.Positions = api.GetPositions(account);
-	                foreach (var position in account.Positions)
-	                {
+				foreach (var account in portfolio.Accounts)
+				{
+					account.Positions = api.GetPositions(account);
+					foreach (var position in account.Positions)
+					{
 						weights.AddRange(morningstar.GetWeights(assetAllocationCategory, position.Security));
 						//weights.AddRange(api.GetWeights(securityCategory, position.Security));
 						//weights.AddRange(api.GetWeights(currencyCategory, position.Security));
-	                }
-	            }
+					}
+				}
 
-                var reporter = new StringWeightReporter(api);
+				var reporter = new StringWeightReporter(api);
 				var report = reporter.GetReport(portfolio, new[] { assetAllocationCategory }, weights.Distinct());
 
-                Console.Write(report);
-	        }
+				Console.Write(report);
+			}
 
-	        return ErrorCode.NoError;
-	    }
+			return ErrorCode.NoError;
+		}
 
 		private static ErrorCode QuestradeMonthReportOperation(string portfolioName)
 		{

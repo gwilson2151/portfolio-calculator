@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Moq;
 using NUnit.Framework;
@@ -11,7 +10,7 @@ using Contracts;
 namespace Tests.BLL
 {
 	[TestFixture]
-    public class StringValueReporterTests
+	public class StringValueReporterTests
 	{
 		private Mock<ISecurityQuoter> _quoterMock;
 
@@ -34,7 +33,7 @@ namespace Tests.BLL
 			});
 
 			// execute
-			StringValueReporter reporter = new StringValueReporter(_quoterMock.Object);
+			var reporter = new StringValueReporter(_quoterMock.Object);
 			var result = reporter.GetReport(portfolio);
 
 			// validate

@@ -38,60 +38,60 @@ namespace Tests.BLL
 			Console.Out.Write(report);
 		}
 
-        [Test]
-        public void SymbolTest()
-        {
-            var symbols = new List<Security>
-            {
-                new Security {Exchange = "TSX", Symbol = "XCS"},
-                new Security {Exchange = "TSX", Symbol = "XIU"},
-                new Security {Exchange = "NASDAQ", Symbol = "GOOG"},
-            };
-            using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
-            {
-                var api = new QuestradeService(tokenManager, new InMemorySecurityRepository(), new InMemoryCategoryRepository());
+		[Test]
+		public void SymbolTest()
+		{
+			var symbols = new List<Security>
+			{
+				new Security {Exchange = "TSX", Symbol = "XCS"},
+				new Security {Exchange = "TSX", Symbol = "XIU"},
+				new Security {Exchange = "NASDAQ", Symbol = "GOOG"},
+			};
+			using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
+			{
+				var api = new QuestradeService(tokenManager, new InMemorySecurityRepository(), new InMemoryCategoryRepository());
 
-                var quotes = api.GetSymbols(symbols);
-            }
-        }
+				var quotes = api.GetSymbols(symbols);
+			}
+		}
 
-	    [Test]
-	    public void QuoteTest()
-	    {
-            var symbols = new List<Security>
-                {
-                    new Security {Exchange = "TSX", Symbol = "XCS"},
-                    new Security {Exchange = "TSX", Symbol = "XIU"},
-                    new Security {Exchange = "NASDAQ", Symbol = "GOOG"},
-                };
-            using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
-            {
-                var api = new QuestradeService(tokenManager, new InMemorySecurityRepository(), new InMemoryCategoryRepository());
+		[Test]
+		public void QuoteTest()
+		{
+			var symbols = new List<Security>
+				{
+					new Security {Exchange = "TSX", Symbol = "XCS"},
+					new Security {Exchange = "TSX", Symbol = "XIU"},
+					new Security {Exchange = "NASDAQ", Symbol = "GOOG"},
+				};
+			using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
+			{
+				var api = new QuestradeService(tokenManager, new InMemorySecurityRepository(), new InMemoryCategoryRepository());
 
-                var quotes = api.GetQuotes(symbols);
-            }
-	    }
+				var quotes = api.GetQuotes(symbols);
+			}
+		}
 
-	    [Test]
-	    public void WeightTest()
-	    {
-            var categoryRepository = new InMemoryCategoryRepository();
-	        var category = categoryRepository.GetCategory("Security");
-	        var category2 = categoryRepository.GetCategory("Currency");
-            var securityRepository = new InMemorySecurityRepository();
-	        var security = securityRepository.GetOrCreate("TSX", "XSB");
+		[Test]
+		public void WeightTest()
+		{
+			var categoryRepository = new InMemoryCategoryRepository();
+			var category = categoryRepository.GetCategory("Security");
+			var category2 = categoryRepository.GetCategory("Currency");
+			var securityRepository = new InMemorySecurityRepository();
+			var security = securityRepository.GetOrCreate("TSX", "XSB");
 			var security2 = securityRepository.GetOrCreate("NASDAQ", "MSFT");
 
-            using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
-            {
-                var api = new QuestradeService(tokenManager, securityRepository, categoryRepository);
+			using (var tokenManager = new QuestradeApiTokenManager(new Configuration()))
+			{
+				var api = new QuestradeService(tokenManager, securityRepository, categoryRepository);
 
-                var weights = api.GetWeights(category, security);
-                weights = api.GetWeights(category, security);
-                weights = api.GetWeights(category, security2);
-                weights = api.GetWeights(category2, security);
-                weights = api.GetWeights(category2, security2);
-            }
-	    }
+				var weights = api.GetWeights(category, security);
+				weights = api.GetWeights(category, security);
+				weights = api.GetWeights(category, security2);
+				weights = api.GetWeights(category2, security);
+				weights = api.GetWeights(category2, security2);
+			}
+		}
 	}
 }
