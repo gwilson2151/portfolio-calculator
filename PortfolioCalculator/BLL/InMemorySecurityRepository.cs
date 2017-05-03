@@ -34,7 +34,7 @@ namespace BLL
 		//	return GetCacheKey(security.Exchange, security.Symbol);
 		//}
 
-		private string GetCacheKey(string exchange, string symbol)
+		private static string GetCacheKey(string exchange, string symbol)
 		{
 			return string.Format("{0}:{1}", exchange, symbol);
 		}

@@ -64,7 +64,7 @@ namespace BLL
 		public List<Transaction> GetTransactions(Account account, DateTime startDate, DateTime endDate)
 		{
 			var response = GetExecutionsResponse.GetExecutions(_tokenManager.GetAuthToken(), account.Name, startDate, endDate);
-			var symbolIds = response.Executions.Select(p => p.m_symbolId);
+			var symbolIds = response.Executions.Select(p => p.m_symbolId).Distinct();
 			var symbolData = GetSymbolsById(symbolIds).ToDictionary<SymbolData, ulong>(s => s.m_symbolId);
 
 			return response.Executions.Select(qe => new Transaction
@@ -99,7 +99,8 @@ namespace BLL
 			var securityMap = securities.ToDictionary(BuildSymbolFromSecurity);
 
 			var response = GetQuoteResponse.GetQuote(_tokenManager.GetAuthToken(), symbolIds);
-			return response.Quotes.ToDictionary<Level1DataItem, Security, decimal>(key => securityMap[key.m_symbol], value => Convert.ToDecimal(value.m_lastTradePrice));
+			return response.Quotes.Where(q => !double.IsInfinity(q.m_lastTradePrice) && !double.IsNaN(q.m_lastTradePrice))
+				.ToDictionary<Level1DataItem, Security, decimal>(key => securityMap[key.m_symbol], value => Convert.ToDecimal(value.m_lastTradePrice));
 		}
 
 		// this is going to get nuts...
