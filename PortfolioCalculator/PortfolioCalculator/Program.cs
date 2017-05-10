@@ -32,8 +32,6 @@ namespace PortfolioCalculator
 
 		static int Main(string[] args)
 		{
-			//EF6Test();
-
 			if (args[0].ToLower(CultureInfo.InvariantCulture).Equals("help"))
 			{
 				Console.Write(@"questrade-value-report - get positions from Questrade API and print current value report. Make sure qapikey is populated with a valid refresh token from Questrade API page.
@@ -382,15 +380,6 @@ fundbot-weight-report - import buys.csv from fundbot and print a report of how t
 			Console.WriteLine(@"Press any key to exit");
 			Console.ReadKey(true);
 			return (int)code;
-		}
-
-		private static void EF6Test()
-		{
-			var db = new PortfolioContext();
-			var first = db.Portfolios.Include("Accounts").First();
-			var accounts = first.Accounts;
-
-			//var next = from p in db.Portfolios.Include("Accounts") select p;
 		}
 	}
 }
