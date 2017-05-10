@@ -23,11 +23,11 @@ namespace BLL
 			_priceFinder = yahooServiceFactory.GetHistoricalPricesService();
 		}
 
-		public IDictionary<string, decimal> GetQuotes(IEnumerable<Security> securities)
+		public IDictionary<Security, decimal> GetQuotes(IEnumerable<Security> securities)
 		{
-			var symbols = securities.Select(s => s.Symbol).Distinct().ToArray();
-			var quotes = _quoteBuilder.Quote(symbols).Return(QuoteReturnParameter.Symbol, QuoteReturnParameter.LatestTradePrice);
-			return quotes.Where(q => !q.LatestTradePrice.Equals("N/A")).ToDictionary<dynamic, string, decimal>(key => RemoveYahooSymbolFormat(key.Symbol), value => decimal.Parse(value.LatestTradePrice, CultureInfo.InvariantCulture));
+			var symbolMap = securities.ToDictionary(s => s.Symbol);
+			var quotes = _quoteBuilder.Quote(symbolMap.Keys.ToArray()).Return(QuoteReturnParameter.Symbol, QuoteReturnParameter.LatestTradePrice);
+			return quotes.Where(q => !q.LatestTradePrice.Equals("N/A")).ToDictionary<dynamic, Security, decimal>(key => symbolMap[RemoveYahooSymbolFormat(key.Symbol)], value => decimal.Parse(value.LatestTradePrice, CultureInfo.InvariantCulture));
 		}
 
 		public IDictionary<DateTime, IDictionary<string, decimal>> GetHistoricalPrices(IEnumerable<Security> securities, DateTime start, DateTime end, Contracts.Period period)

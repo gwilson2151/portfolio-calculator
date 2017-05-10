@@ -89,6 +89,10 @@
       <Project>{51ba10b7-3f84-4873-99f0-6a9a207253ce}</Project>
       <Name>DataGatherer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MorningstarScraper\MorningstarScraper.csproj">
+      <Project>{b72fd43c-313d-4dba-aa37-68a681c72bc5}</Project>
+      <Name>MorningstarScraper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets')" />

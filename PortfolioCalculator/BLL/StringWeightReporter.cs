@@ -33,11 +33,15 @@ namespace BLL
 
 				foreach (var kvpair in valuesDict)
 				{
-					var weight = weightsList.Single(w => w.Security.Symbol.Equals(kvpair.Key) && w.Value.Category == category);
-					if (calculations.ContainsKey(weight.Value.Name))
-						calculations[weight.Value.Name] += kvpair.Value;
-					else
-						calculations.Add(weight.Value.Name, kvpair.Value);
+					var categoryWeights = weightsList.Where(w => w.Security.Symbol.Equals(kvpair.Key) && w.Value.Category == category);
+					foreach (var categoryWeight in categoryWeights)
+					{
+						var ratio = kvpair.Value * (categoryWeight.Weight / 100M);
+						if (calculations.ContainsKey(categoryWeight.Value.Name))
+							calculations[categoryWeight.Value.Name] += ratio;
+						else
+							calculations.Add(categoryWeight.Value.Name, ratio);
+					}
 				}
 
 				reportBuilder.AppendLine(string.Format("\r\n{0}", category.Name));
@@ -74,7 +78,7 @@ namespace BLL
 			reportBuilder.AppendLine(string.Format("Total = {0:C}{1}", total, Environment.NewLine));
 		}
 
-		private IDictionary<string, decimal> GetQuotes(Portfolio portfolio)
+		private IDictionary<Security, decimal> GetQuotes(Portfolio portfolio)
 		{
 			var securities = new List<Security>();
 			foreach (var account in portfolio.Accounts)
@@ -84,7 +88,7 @@ namespace BLL
 			return _quoter.GetQuotes(securities.Distinct());
 		}
 
-		private static IDictionary<string, decimal> CalculateValues(Portfolio portfolio, IDictionary<string, decimal> quotes)
+		private static IDictionary<string, decimal> CalculateValues(Portfolio portfolio, IDictionary<Security, decimal> quotes)
 		{
 			var results = new Dictionary<string, decimal>();
 
@@ -94,7 +98,7 @@ namespace BLL
 				{
 					try
 					{
-						var price = quotes[position.Security.Symbol];
+						var price = quotes[position.Security];
 						var value = price * position.Shares;
 						if (results.ContainsKey(position.Security.Symbol))
 							results[position.Security.Symbol] += value;

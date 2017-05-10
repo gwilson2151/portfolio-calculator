@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Moq;
 using NUnit.Framework;
@@ -11,7 +10,7 @@ using Contracts;
 namespace Tests.BLL
 {
 	[TestFixture]
-    public class StringValueReporterTests
+	public class StringValueReporterTests
 	{
 		private Mock<ISecurityQuoter> _quoterMock;
 
@@ -26,15 +25,15 @@ namespace Tests.BLL
 		{
 			// setup
 			var portfolio = TestDataGenerator.GenerateDefaultPortfolio();
-			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<string, decimal>
+			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<Security, decimal>
 			{
-				{"goog", 18.25M},
-				{"msft", 15M},
-				{"aapl", 9.36M},
+				{new Security { Symbol = "goog"}, 18.25M},
+				{new Security { Symbol = "msft"}, 15M},
+				{new Security { Symbol = "aapl"}, 9.36M},
 			});
 
 			// execute
-			StringValueReporter reporter = new StringValueReporter(_quoterMock.Object);
+			var reporter = new StringValueReporter(_quoterMock.Object);
 			var result = reporter.GetReport(portfolio);
 
 			// validate
@@ -56,10 +55,10 @@ msft: 100 x 15 = 1500
 		{
 			// setup
 			var portfolio = TestDataGenerator.GenerateDefaultPortfolio();
-			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<string, decimal>
+			_quoterMock.Setup(m => m.GetQuotes(It.IsAny<IEnumerable<Security>>())).Returns(new Dictionary<Security, decimal>
 			{
-				{"goog", new decimal(18.25)},
-				{"msft", new decimal(15)},
+				{new Security { Symbol = "goog"}, new decimal(18.25)},
+				{new Security { Symbol = "msft"}, new decimal(15)},
 			});
 
 			// execute
