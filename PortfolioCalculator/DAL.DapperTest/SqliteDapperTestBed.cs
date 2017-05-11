@@ -17,7 +17,7 @@ namespace DAL.DapperTest
 			if (!_categoryRepository.DbExists())
 				_categoryRepository.InitDb();
 
-
+			var category = _categoryRepository.GetCategory("Security");
 		}
 	}
 }
