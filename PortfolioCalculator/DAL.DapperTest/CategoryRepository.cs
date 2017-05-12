@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using BLL.Interfaces;
@@ -8,53 +9,22 @@ using Dapper;
 
 namespace DAL.DapperTest
 {
-	public class CategoryRepository : SqliteBaseRepository, ICategoryRepository
+	public class CategoryRepository : ICategoryRepository
 	{
-		public bool DbExists() {
-			return File.Exists(DbFile);
-		}
+		private readonly string _dbFilePath;
 
-		public void InitDb() {
-			using (var conn = SimpleDbConnection())
-			{
-				conn.Open();
-				CreateSchema(conn);
-			}
-		}
-
-		private static void CreateSchema(IDbConnection conn)
+		public CategoryRepository(string dbFilePath)
 		{
-			conn.Execute(@"CREATE TABLE Category
-(
-	Id INTEGER PRIMARY KEY AUTOINCREMENT,
-	Name NVARCHAR(100) NOT NULL
-)");
-			conn.Execute(@"CREATE TABLE CategoryValue
-(
-	Id INTEGER PRIMARY KEY AUTOINCREMENT,
-	Name NVARCHAR(100) NOT NULL,
-	CategoryId INTEGER NOT NULL,
-	FOREIGN KEY(CategoryId) REFERENCES Category(Id)
-)");
-			conn.Execute(@"CREATE TABLE Security
-(
-	Id INTEGER PRIMARY KEY AUTOINCREMENT,
-	Symbol NVARCHAR(24) NOT NULL,
-	Exchange NVARCHAR(24) NOT NULL
-)");
-			conn.Execute(@"CREATE TABLE CategoryWeight
-(
-	Id INTEGER PRIMARY KEY AUTOINCREMENT,
-	CategoryValueId INTEGER NOT NULL,
-	Weight NUMERIC NOT NULL,
-	SecurityId INTEGER NOT NULL,
-	FOREIGN KEY(CategoryValueId) REFERENCES CategoryValue(Id),
-	FOREIGN KEY(SecurityId) REFERENCES Category(Security)
-)");
+			_dbFilePath = dbFilePath;
+		}
+
+		private SQLiteConnection GetDbConnection()
+		{
+			return new SQLiteConnection("DataSource=" + _dbFilePath);
 		}
 
 		public Category GetCategory(string name) {
-			using (var conn = SimpleDbConnection())
+			using (var conn = GetDbConnection())
 			{
 				conn.Open();
 				var result = conn.Query<Category>(@"SELECT Id, Name FROM Category WHERE Name = @name", new {name}).FirstOrDefault();
@@ -69,7 +39,7 @@ namespace DAL.DapperTest
 
 		public void AddValues(Category category, IEnumerable<CategoryValue> values)
 		{
-			using (var conn = SimpleDbConnection())
+			using (var conn = GetDbConnection())
 			{
 				conn.Open();
 				var existingValues = conn.Query<CategoryValue>(@"SELECT Id, Name, CategoryId FROM CategoryValue WHERE CategoryId = @categoryId",
@@ -88,7 +58,7 @@ namespace DAL.DapperTest
 
 		public IEnumerable<CategoryValue> GetValues(Category category)
 		{
-			using (var conn = SimpleDbConnection())
+			using (var conn = GetDbConnection())
 			{
 				conn.Open();
 				var values = conn.Query<CategoryValue>(@"SELECT Id, Name, CategoryId FROM CategoryValue WHERE CategoryId = @categoryId",

@@ -53,7 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CategoryRepository.cs" />
-    <Compile Include="SqliteBaseRepository.cs" />
     <Compile Include="SqliteDapperTestBed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
