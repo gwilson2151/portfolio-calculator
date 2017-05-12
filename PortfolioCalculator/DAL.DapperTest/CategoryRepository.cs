@@ -67,22 +67,46 @@ namespace DAL.DapperTest
 			}
 		}
 
+		public void AddValues(Category category, IEnumerable<CategoryValue> values)
+		{
+			using (var conn = SimpleDbConnection())
+			{
+				conn.Open();
+				var existingValues = conn.Query<CategoryValue>(@"SELECT Id, Name, CategoryId FROM CategoryValue WHERE CategoryId = @categoryId",
+						new {categoryId = category.Id});
+
+				var existingValueNames = new HashSet<string>(existingValues.Select(v => v.Name));
+				foreach (var newValue in values.Where(v => !existingValueNames.Contains(v.Name)))
+				{
+					newValue.Id = conn.Query<long>(@"INSERT INTO CategoryValue (Name, CategoryId) VALUES (@name, @categoryId); SELECT last_insert_rowid()", new {name = newValue.Name, categoryId = category.Id}).Single();
+
+					newValue.Category = category;
+					category.Values.Add(newValue);
+				}
+			}
+		}
+
+		public IEnumerable<CategoryValue> GetValues(Category category)
+		{
+			using (var conn = SimpleDbConnection())
+			{
+				conn.Open();
+				var values = conn.Query<CategoryValue>(@"SELECT Id, Name, CategoryId FROM CategoryValue WHERE CategoryId = @categoryId",
+						new { categoryId = category.Id }).ToList();
+				foreach (var value in values)
+				{
+					value.Category = category;
+				}
+				return values;
+			}
+		}
+
 		public void AddWeights(Category category, Security security, IEnumerable<CategoryWeight> weights)
 		{
 			throw new System.NotImplementedException();
 		}
 
 		public IEnumerable<CategoryWeight> GetWeights(Category category, Security security)
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public void AddValues(Category category, IEnumerable<CategoryValue> values)
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public IEnumerable<CategoryValue> GetValues(Category category)
 		{
 			throw new System.NotImplementedException();
 		}
