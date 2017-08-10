@@ -10,7 +10,6 @@ using BLL.Factories;
 
 using Contracts;
 using DataGatherer.Factories;
-using DAL.SQLite;
 using MorningstarScraper;
 using Newtonsoft.Json;
 
