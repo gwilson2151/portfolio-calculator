@@ -13,6 +13,7 @@ namespace PortfolioSmarts.PortfolioApp
         }
 
         private readonly QuestradeClient _client;
+        
         private Program()
         {
             _client = new QuestradeClient();
@@ -20,8 +21,11 @@ namespace PortfolioSmarts.PortfolioApp
 
         private async Task ExecuteClient()
         {
-            var stuff = await _client.GetStuff();
-            Console.WriteLine(stuff);
+            Console.Write("Enter refresh token: ");
+            var refreshToken = Console.ReadLine();
+            Console.WriteLine();
+            await _client.RedeemRefreshToken(refreshToken);
+
             Console.WriteLine("Done");
             return;
         }
