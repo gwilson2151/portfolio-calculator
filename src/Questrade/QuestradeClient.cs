@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization.Json;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -21,8 +22,8 @@ namespace PortfolioSmarts.Questrade
         public QuestradeClient()
             : base()
         {
-            this.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            this.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("PortfolioSmarts", "v0.0"));
+            DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("PortfolioSmarts", "v0.0"));
         }
 
         public async Task RedeemRefreshToken(string refreshToken)
@@ -31,21 +32,24 @@ namespace PortfolioSmarts.Questrade
             var message = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(contentBody)));
             message.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
             _tokenRequestTime = DateTime.UtcNow;
-            Console.WriteLine("Requesting");
-            var response = await this.PostAsync("https://login.questrade.com/oauth2/token", message);
-            Console.WriteLine("Responded");
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
+            var response = await PostAsync("https://login.questrade.com/oauth2/token", message);
 
-            var serializer = new DataContractJsonSerializer(typeof(TokenResponse));
-            var result = serializer.ReadObject(await response.Content.ReadAsStreamAsync()) as TokenResponse;
-            Console.WriteLine("Deserialised");
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var serializer = new DataContractJsonSerializer(typeof(TokenResponse));
+                var result = serializer.ReadObject(await response.Content.ReadAsStreamAsync()) as TokenResponse;
 
-            Console.WriteLine(result.ToString());
-            _refreshToken = result.RefreshToken;
-            _accessToken = result.AccessToken;
-            _tokenType = result.TokenType;
-            _expiry = new TimeSpan(0, 0, result.ExpiresIn);
-            _apiUrl = result.ApiServer;
+                _refreshToken = result.RefreshToken;
+                _accessToken = result.AccessToken;
+                _tokenType = result.TokenType;
+                _expiry = new TimeSpan(0, 0, result.ExpiresIn);
+                _apiUrl = result.ApiServer;
+                Console.WriteLine($"{_refreshToken}, {_accessToken}, {_tokenType}, {_expiry}, {_apiUrl}");
+            }
+            else
+            {
+                Console.WriteLine($"RedeemRefreshToken error: {response.StatusCode}");
+            }
 
             return;
         }
