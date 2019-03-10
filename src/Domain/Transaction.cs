@@ -1,7 +1,7 @@
 ﻿using System;
-using Contracts.Interfaces;
+using PortfolioSmarts.Domain.Interfaces;
 
-namespace Contracts
+namespace PortfolioSmarts.Domain
 {
 	public class Transaction : IDomainEntity
 	{

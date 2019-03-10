@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using Contracts.Interfaces;
+using PortfolioSmarts.Domain.Interfaces;
 
-namespace Contracts
+namespace PortfolioSmarts.Domain
 {
 	[DebuggerDisplay("{Name}")]
 	public class Category : IDomainEntity
 	{
 		public long Id { get; set; }
 		public string Name { get; set; }
-		public IList<CategoryValue> Values { get; set; }
+		public IEnumerable<CategoryValue> Values { get; set; }
 
 		public Category()
 		{

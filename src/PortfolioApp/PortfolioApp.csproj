@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Questrade\Questrade.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

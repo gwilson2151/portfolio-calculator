@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
-using Contracts.Interfaces;
+using PortfolioSmarts.Domain.Interfaces;
 
-namespace Contracts
+namespace PortfolioSmarts.Domain
 {
 	public class Account : IDomainEntity
 	{
 		public long Id { get; set; }
 		public string Name { get; set; }
 		public Portfolio Portfolio { get; set; }
-		public List<Transaction> Transactions { get; set; }
-		public List<Position> Positions { get; set; }
+		public IEnumerable<Transaction> Transactions { get; set; }
+		public IEnumerable<Position> Positions { get; set; }
 
 		public Account()
 		{

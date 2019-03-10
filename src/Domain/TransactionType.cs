@@ -1,4 +1,4 @@
-﻿namespace Contracts
+﻿namespace PortfolioSmarts.Domain
 {
 	public enum TransactionType
 	{

@@ -9,25 +9,28 @@ namespace PortfolioSmarts.PortfolioApp
         private static void Main(string[] args)
         {
             var program = new Program();
-            program.ExecuteClient().Wait();
+            program.InitialiseApi().Wait();
+            program.ShowAccounts().Wait();
         }
 
-        private readonly QuestradeClient _client;
+        private readonly QuestradeApi _api;
         
         private Program()
         {
-            _client = new QuestradeClient();
+            _api = new QuestradeApi(new QuestradeClient());
         }
 
-        private async Task ExecuteClient()
+        private async Task InitialiseApi()
         {
             Console.Write("Enter refresh token: ");
             var refreshToken = Console.ReadLine();
-            Console.WriteLine();
-            await _client.RedeemRefreshToken(refreshToken);
+            await _api.Initialise(refreshToken);
+            Console.WriteLine("Initialisation done.");
+        }
 
-            Console.WriteLine("Done");
-            return;
+        private async Task ShowAccounts()
+        {
+            var blah = await _api.GetAccounts();
         }
     }
 }

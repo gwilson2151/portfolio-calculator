@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Runtime.Serialization.Json;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 
 using PortfolioSmarts.Questrade.Model;
@@ -12,13 +13,6 @@ namespace PortfolioSmarts.Questrade
 {
     public class QuestradeClient : HttpClient
     {
-        private string _refreshToken;
-        private string _accessToken;
-        private string _apiUrl;
-        private string _tokenType;
-        private DateTime _tokenRequestTime;
-        private TimeSpan _expiry;
-
         public QuestradeClient()
             : base()
         {
@@ -26,12 +20,12 @@ namespace PortfolioSmarts.Questrade
             DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("PortfolioSmarts", "v0.0"));
         }
 
-        public async Task RedeemRefreshToken(string refreshToken)
+        public async Task<SessionState> Authenticate(string refreshToken)
         {
             var contentBody = $"grant_type=refresh_token&refresh_token={refreshToken}";
             var message = new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(contentBody)));
             message.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-            _tokenRequestTime = DateTime.UtcNow;
+            var tokenRequestTime = DateTime.UtcNow;
             var response = await PostAsync("https://login.questrade.com/oauth2/token", message);
 
             if (response.StatusCode == HttpStatusCode.OK)
@@ -39,19 +33,31 @@ namespace PortfolioSmarts.Questrade
                 var serializer = new DataContractJsonSerializer(typeof(TokenResponse));
                 var result = serializer.ReadObject(await response.Content.ReadAsStreamAsync()) as TokenResponse;
 
-                _refreshToken = result.RefreshToken;
-                _accessToken = result.AccessToken;
-                _tokenType = result.TokenType;
-                _expiry = new TimeSpan(0, 0, result.ExpiresIn);
-                _apiUrl = result.ApiServer;
-                Console.WriteLine($"{_refreshToken}, {_accessToken}, {_tokenType}, {_expiry}, {_apiUrl}");
-            }
-            else
-            {
-                Console.WriteLine($"RedeemRefreshToken error: {response.StatusCode}");
+                var sessionState = new SessionState(result, tokenRequestTime);
+                Console.WriteLine($"{sessionState.RefreshToken}, {sessionState.AccessToken}, {sessionState.TokenType}, {sessionState.TokenExpires}, {sessionState.ApiUrl}");
+
+                return sessionState;
             }
 
-            return;
+            throw new Exception($"Authenticate error: {response.StatusCode}{Environment.NewLine}{await response.Content.ReadAsStringAsync()}");
+        }
+
+        public async Task<IEnumerable<AccountDto>> GetAccounts(SessionState sessionState)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{sessionState.ApiUrl}/accounts");
+            request.Headers.Authorization = new AuthenticationHeaderValue(sessionState.TokenType, sessionState.AccessToken);
+            var response = await SendAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var serializer = new DataContractJsonSerializer(typeof(IList<AccountDto>));
+                var result = serializer.ReadObject(await response.Content.ReadAsStreamAsync()) as IList<AccountDto>;
+
+                Console.WriteLine(result);
+                return result;
+            }
+
+            throw new Exception($"GetAccounts error: {response.StatusCode}{Environment.NewLine}{await response.Content.ReadAsStringAsync()}");
         }
     }
 }
