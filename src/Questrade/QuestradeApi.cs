@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,16 +23,24 @@ namespace PortfolioSmarts.Questrade
 
         public async Task<IEnumerable<Account>> GetAccounts()
         {
+            await EnsureSessionAuthentication();
+
             var qAccounts = await _client.GetAccounts(_sessionState);
 
             return qAccounts.Select(a => new Account {
-                Id = int.Parse(a.Number)
+                ExternalId = a.Number,
+                Name = a.Type
             });
         }
 
         private async Task EnsureSessionAuthentication()
         {
-            if (!_sessionState.SessionValid()) {
+            if (_sessionState == null)
+            {
+                throw new Exception("QuestradeApi must be initialised.");
+            }
+            else if (!_sessionState.SessionValid())
+            {
                 _sessionState = await _client.Authenticate(_sessionState.RefreshToken);
             }
         }

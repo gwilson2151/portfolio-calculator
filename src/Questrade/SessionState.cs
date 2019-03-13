@@ -16,7 +16,7 @@ namespace PortfolioSmarts.Questrade
         {
             RefreshToken = tokenDetails.RefreshToken;
             AccessToken = tokenDetails.AccessToken;
-            ApiUrl = tokenDetails.ApiServer;
+            ApiUrl = tokenDetails.ApiServer?.TrimEnd('/');
             TokenType = tokenDetails.TokenType;
             TokenExpires = requestTime + new TimeSpan(0, 0, tokenDetails.ExpiresIn - ExpireTimeBufferSeconds);
         }

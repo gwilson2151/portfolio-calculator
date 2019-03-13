@@ -30,7 +30,12 @@ namespace PortfolioSmarts.PortfolioApp
 
         private async Task ShowAccounts()
         {
-            var blah = await _api.GetAccounts();
+            var accounts = await _api.GetAccounts();
+            Console.WriteLine($"Accounts{Environment.NewLine}--------");
+            foreach (var account in accounts)
+            {
+                Console.WriteLine($"{account.ExternalId} - {account.Name}");
+            }
         }
     }
 }

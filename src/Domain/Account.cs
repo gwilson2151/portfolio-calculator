@@ -6,6 +6,7 @@ namespace PortfolioSmarts.Domain
 	public class Account : IDomainEntity
 	{
 		public long Id { get; set; }
+		public string ExternalId { get; set; }
 		public string Name { get; set; }
 		public Portfolio Portfolio { get; set; }
 		public IEnumerable<Transaction> Transactions { get; set; }

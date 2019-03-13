@@ -44,17 +44,15 @@ namespace PortfolioSmarts.Questrade
 
         public async Task<IEnumerable<AccountDto>> GetAccounts(SessionState sessionState)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{sessionState.ApiUrl}/accounts");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{sessionState.ApiUrl}/v1/accounts");
             request.Headers.Authorization = new AuthenticationHeaderValue(sessionState.TokenType, sessionState.AccessToken);
             var response = await SendAsync(request);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var serializer = new DataContractJsonSerializer(typeof(IList<AccountDto>));
-                var result = serializer.ReadObject(await response.Content.ReadAsStreamAsync()) as IList<AccountDto>;
-
-                Console.WriteLine(result);
-                return result;
+                var serializer = new DataContractJsonSerializer(typeof(GetAccountsResponse));
+                var result = serializer.ReadObject(await response.Content.ReadAsStreamAsync()) as GetAccountsResponse;
+                return result.Accounts;
             }
 
             throw new Exception($"GetAccounts error: {response.StatusCode}{Environment.NewLine}{await response.Content.ReadAsStringAsync()}");
