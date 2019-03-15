@@ -34,7 +34,29 @@ namespace PortfolioSmarts.PortfolioApp
             Console.WriteLine($"Accounts{Environment.NewLine}--------");
             foreach (var account in accounts)
             {
-                Console.WriteLine($"{account.ExternalId} - {account.Name}");
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                var total = 0M;
+                var positions = await _api.GetPositions(account);
+                foreach (var position in positions)
+                {
+                    decimal? currentValue = null;
+                    if (position.ExtraData.TryGetValue("CurrentValue", out var outVar))
+                    {
+                        currentValue = Convert.ToDecimal(outVar);
+                        total += currentValue.Value;
+                    }
+                    decimal? currentPrice = null;
+                    if (position.ExtraData.TryGetValue("CurrentPrice", out var outPrice))
+                    {
+                        currentPrice = Convert.ToDecimal(outPrice);
+                    }
+                    var valStr = currentValue != null ? currentValue.Value.ToString("F2") : "--";
+                    var priceStr = currentPrice != null ? currentPrice.Value.ToString("F2") : "--";
+                    sb.AppendLine($"  {position.Security.Symbol} - {position.Shares} x {priceStr} = {valStr}");
+                }
+
+                Console.WriteLine($"{account.ExternalId} - {account.Name} = {total.ToString("F2")}");
+                Console.WriteLine(sb.ToString());
             }
         }
     }

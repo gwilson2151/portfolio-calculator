@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using PortfolioSmarts.Domain.Interfaces;
 
 namespace PortfolioSmarts.Domain
@@ -10,5 +11,6 @@ namespace PortfolioSmarts.Domain
 		public Account Account { get; set; }
 		public Security Security { get; set; }
 		public decimal Shares { get; set; }
+		public IDictionary<string, object> ExtraData { get; set; }
 	}
 }

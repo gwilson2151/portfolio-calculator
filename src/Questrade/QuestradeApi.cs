@@ -33,6 +33,25 @@ namespace PortfolioSmarts.Questrade
             });
         }
 
+        public async Task<IEnumerable<Position>> GetPositions(Account account)
+        {
+            await EnsureSessionAuthentication();
+
+            var qPositions = await _client.GetPositions(_sessionState, account.ExternalId);
+
+            return qPositions.Select(p => new Position {
+                Account = account,
+                Security = new Security {
+                    Symbol = p.Symbol
+                },
+                Shares = Convert.ToDecimal(p.OpenQuantity),
+                ExtraData = new Dictionary<string, object> {
+                    { "CurrentValue", Convert.ToDecimal(p.CurrentMarketValue) },
+                    { "CurrentPrice", Convert.ToDecimal(p.CurrentPrice) }
+                }
+            });
+        }
+
         private async Task EnsureSessionAuthentication()
         {
             if (_sessionState == null)

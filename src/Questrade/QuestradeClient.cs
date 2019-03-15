@@ -57,5 +57,21 @@ namespace PortfolioSmarts.Questrade
 
             throw new Exception($"GetAccounts error: {response.StatusCode}{Environment.NewLine}{await response.Content.ReadAsStringAsync()}");
         }
+
+        public async Task<IEnumerable<PositionDto>> GetPositions(SessionState sessionState, string accountId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{sessionState.ApiUrl}/v1/accounts/{accountId}/positions");
+            request.Headers.Authorization = new AuthenticationHeaderValue(sessionState.TokenType, sessionState.AccessToken);
+            var response = await SendAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var serializer = new DataContractJsonSerializer(typeof(GetPositionsResponse));
+                var result = serializer.ReadObject(await response.Content.ReadAsStreamAsync()) as GetPositionsResponse;
+                return result.Positions;
+            }
+
+            throw new Exception($"GetPositions error: {response.StatusCode}{Environment.NewLine}{await response.Content.ReadAsStringAsync()}");
+        }
     }
 }
