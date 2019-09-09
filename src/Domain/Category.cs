@@ -9,7 +9,7 @@ namespace PortfolioSmarts.Domain
 	{
 		public long Id { get; set; }
 		public string Name { get; set; }
-		public IEnumerable<CategoryValue> Values { get; set; }
+		public ICollection<CategoryValue> Values { get; set; }
 
 		public Category()
 		{
