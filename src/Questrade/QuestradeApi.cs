@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PortfolioSmarts.Domain;
+using PortfolioSmarts.Domain.Enumerations;
 
 namespace PortfolioSmarts.Questrade
 {
@@ -50,6 +51,24 @@ namespace PortfolioSmarts.Questrade
                     { "CurrentPrice", Convert.ToDecimal(p.CurrentPrice) }
                 }
             });
+        }
+
+        public async Task<IEnumerable<Balance>> GetBalances(Account account) {
+            await EnsureSessionAuthentication();
+
+            var qBalances = await _client.GetBalances(_sessionState, account.ExternalId);
+
+            return qBalances.Select(b => new Balance {
+                Currency = ParseCurrency(b.Currency),
+                Amount = Convert.ToDecimal(b.Cash)
+            });
+        }
+
+        private Currency ParseCurrency(string currencyDtv) {
+            if (Enum.TryParse<Currency>(currencyDtv, out var value)) {
+                return value;
+            }
+            return Currency.Unknown;
         }
 
         private async Task EnsureSessionAuthentication()

@@ -20,6 +20,7 @@ namespace PortfolioSmarts.PortfolioApp
         private const int pBondsValueId = 7;
         private const int PreferredsValueId = 8;
         private const int AltValueId = 9;
+        private const int pCashValueId = 10;
 
         private IEnumerable<Category> Categories;
         private IDictionary<string, IEnumerable<CategoryWeight>> Weights;
@@ -80,6 +81,11 @@ namespace PortfolioSmarts.PortfolioApp
                     Name = "Preferreds",
                     Category = bdPortfolio
                 });
+                bdPortfolio.Values.Add(new CategoryValue() {
+                    Id = pCashValueId,
+                    Name = "Cash",
+                    Category = bdPortfolio
+                });
 
                 Categories = new[] {
                     security,
@@ -108,6 +114,7 @@ namespace PortfolioSmarts.PortfolioApp
                 var altStrat = portfolio.Values.Where(v => v.Id == AltValueId).Single();
                 var pBonds = portfolio.Values.Where(v => v.Id == pBondsValueId).Single();
                 var preferreds = portfolio.Values.Where(v => v.Id == PreferredsValueId).Single();
+                var pCash = portfolio.Values.Where(v => v.Id == pCashValueId).Single();
 
                 var XUS = new Security() {
                     Symbol = "XUS.TO",
@@ -375,6 +382,42 @@ namespace PortfolioSmarts.PortfolioApp
                     new CategoryWeight() {
                         Security = XIN,
                         Value = intlEquity,
+                        Weight = 100M
+                    }
+                };
+
+                var CAD = new Security() {
+                    Id = securityId++,
+                    Exchange = "n/a",
+                    Symbol = "CAD"
+                };
+                Weights[CAD.Symbol] = new[] {
+                    new CategoryWeight() {
+                        Security = CAD,
+                        Value = cash,
+                        Weight = 100M
+                    },
+                    new CategoryWeight() {
+                        Security = CAD,
+                        Value = pCash,
+                        Weight = 100M
+                    }
+                };
+
+                var USD = new Security() {
+                    Id = securityId++,
+                    Exchange = "n/a",
+                    Symbol = "USD"
+                };
+                Weights[USD.Symbol] = new[] {
+                    new CategoryWeight() {
+                        Security = USD,
+                        Value = cash,
+                        Weight = 100M
+                    },
+                    new CategoryWeight() {
+                        Security = USD,
+                        Value = pCash,
                         Weight = 100M
                     }
                 };
